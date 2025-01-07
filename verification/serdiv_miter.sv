@@ -14,11 +14,11 @@ module serdiv_miter import ariane_pkg::*;
   input  logic                     label_a_i1, label_a_i2,
   input  logic                     label_b_i1, label_b_i2
 
-//  output logic                     in_rdy_o,
-//  output logic                     out_vld_o,
-//  output logic [TRANS_ID_BITS-1:0] id_o,
-//  output logic [WIDTH-1:0]         res_o,
-//  output logic                     label_res_o
+//  output logic                     in_rdy_o1, in_rdy_o2,
+//  output logic                     out_vld_o1, out_vld_o2,
+//  output logic [TRANS_ID_BITS-1:0] id_o1, id_o2,
+//  output logic [WIDTH-1:0]         res_o1, res_o2,
+//  output logic                     label_res_o1, label_res_o2
 
   );
 
@@ -36,11 +36,11 @@ module serdiv_miter import ariane_pkg::*;
     .label_a_i(label_a_i1),
     .label_b_i(label_b_i1),
 
-    .in_rdy_o(),
-    .out_vld_o(),
-    .id_o(),
-    .res_o(),
-    .label_res_o()
+    .in_rdy_o(in_rdy_o1),
+    .out_vld_o(out_vld_o1),
+    .id_o(id_o1),
+    .res_o(res_o1),
+    .label_res_o(label_res_o1)
   );
 
   serdiv #(.WIDTH(WIDTH)) U2
@@ -57,11 +57,11 @@ module serdiv_miter import ariane_pkg::*;
     .label_a_i(label_a_i2),
     .label_b_i(label_b_i2),
 
-    .in_rdy_o(),
-    .out_vld_o(),
-    .id_o(),
-    .res_o(),
-    .label_res_o()
+    .in_rdy_o(in_rdy_o2),
+    .out_vld_o(out_vld_o2),
+    .id_o(id_o2),
+    .res_o(res_o2),
+    .label_res_o(label_res_o2)
   );
 
 endmodule;
