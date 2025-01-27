@@ -1,6 +1,14 @@
-# @lang=tcl @ts=8
+﻿# @lang=tcl @ts=8
+
+################
+# WCET – SETUP #
+################
 
 set script_path [file dirname [file normalize [info script]]]
+
+#################################
+# Design Setup and Verification #
+#################################
 
 read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../common/cf_math_pkg.sv}
 read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../common/rvfi_pkg.sv}
@@ -21,4 +29,14 @@ set_mode mv
 
 read_sva -version {sv2012} {$script_path/serdiv_no_tidal.sva}
 
-check -all [get_checks]
+# check -all [get_checks]
+
+
+
+Just some random things I could need
+#get_counterexample_value
+#get_counterexample_value -signals {serdiv.out_vld_o} checker_bind.wcet_p_a
+#
+#check -pass [ list checker_bind.bcet_p_a ]
+
+
