@@ -1,21 +1,14 @@
-// @lang=sva @ts=8
+1. Grundidee: baue einen Wrapper um secure modules und verifiziere es. Nutze Div.-Module aus BA als Beispiel und wende es auf weitere Module an.
 
-module property_checker import ariane_pkg::*;
-  #(parameter WIDTH = 8)
-  (
-  input clk_i,
-  input rst_ni
-  );
+2. Ermittle die WCET und BCET für Div-Mod.
 
-  default clocking default_clk @(posedge clk_i); endclocking
-
+3. Erste Entwürfe
   localparam MIN_LATENCY = 0;
   localparam MAX_LATENCY = 9;
 
   property wcet_p;
     (serdiv.in_rdy_o == 1'b1) && (serdiv.in_vld_i == 1'b0) && (serdiv.flush_i == 1'b0)
-    ##1 (serdiv.in_vld_i == 1'b1)
-    ##0 (serdiv.flush_i == 1'b0) [*MAX_LATENCY]
+    ##1 (serdiv.in_vld_i == 1'b1) ##0 (serdiv.flush_i == 1'b0) [*MAX_LATENCY]
   implies 
     (serdiv.out_vld_o == 1'b0)                   // Setup cycle
     ##1 (serdiv.out_vld_o == 1'b0)[*MAX_LATENCY] 
@@ -44,14 +37,4 @@ property bcet_p;
 endproperty
 bcet_p_a: assert property (disable iff (!rst_ni) bcet_p);
 
-  /* 
-  Latency is the number of clock cycles between (serdiv.in_vld_i == 1'b1) and (serdiv.out_vld_o == 1'b1).
-  (serdiv.in_vld_i == 1'b1) is given at t+1.
-  (serdiv.out_vld_o == 1'b1) arrives at t+1+MAX_LATENCY.
-  A value of MAX_LATENCY = 9 can still produce a witness, so I guess the maximum latency is 9 clock cycles in that case.
-  */
-
-
-endmodule
-
-bind serdiv property_checker #(.WIDTH(WIDTH)) checker_bind(.clk_i(clk_i), .rst_ni(rst_ni));
+4. Versuche TCL-Skript zur Automatisierung der WCET für fixe Values von a und b.
