@@ -38,3 +38,7 @@ endproperty
 bcet_p_a: assert property (disable iff (!rst_ni) bcet_p);
 
 4. Versuche TCL-Skript zur Automatisierung der WCET für fixe Values von a und b.
+#get_counterexample_value
+#get_counterexample_value -signals {serdiv.out_vld_o} checker_bind.wcet_p_a
+#
+#check -pass [ list checker_bind.bcet_p_a ]

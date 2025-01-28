@@ -10,7 +10,7 @@ module property_checker import ariane_pkg::*;
   default clocking default_clk @(posedge clk_i); endclocking
 
   localparam MIN_LATENCY = 0;
-  localparam MAX_LATENCY = WIDTH+2;
+  localparam MAX_LATENCY = WIDTH+1;
 
   property wcet_p;
     (serdiv.in_rdy_o == 1'b1) && (serdiv.in_vld_i == 1'b0) && (serdiv.flush_i == 1'b0)
