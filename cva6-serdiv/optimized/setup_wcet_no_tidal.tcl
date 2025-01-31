@@ -1,5 +1,5 @@
 #################
-# WCET ? SETUP #
+# WCET - SETUP #
 ################
 
 set script_path [file dirname [file normalize [info script]]]
@@ -64,6 +64,7 @@ read_sva -version {sv2012} {$script_path/serdiv_no_tidal.sva}
 # Extract WIDTH from the serdiv_no_tidal.sva file
 set sv_file [file join $script_path "serdiv_no_tidal.sva"]
 set width [get_width $sv_file]
+puts $width
 
 ##########################
 # Loop Witness Reachable #
@@ -71,26 +72,27 @@ set width [get_width $sv_file]
 
 # Initialize latency value
 set latency 1
-puts $latency
 # Set stopping condition: twice the WIDTH
 set max_latency [expr {$width * 2}]
 
-# Initial Check to start
+
+# Update MAX_LATENCY in the property file
 exec sed -i "s/localparam MAX_LATENCY = .*/localparam MAX_LATENCY = $latency;/" $sv_file
-puts $latency
+
+# Initial Check to start
+after 1000
 check  -all [get_checks]
 while {($latency <= $max_latency) && (![string match "unreachable" [get_check_info -status -witness checker_bind.wcet_p_a]])} {
-
-
-    puts "Testing MAX_LATENCY = $latency"
 
     # Update MAX_LATENCY in the property file
     exec sed -i "s/localparam MAX_LATENCY = .*/localparam MAX_LATENCY = $latency;/" $sv_file
 
-    # Reload and rerun SVA
-    after 1000
+    # Reload and rerun SVA - saving MAX_LATENCY takes time, because it's an extern action
+    after 500
     read_sva
-    check  -all [get_checks]
+    
+    # Check witness
+    check -pass [ list checker_bind.wcet_p_a ]
 
     # Increment latency for the next iteration
     incr latency
@@ -98,25 +100,12 @@ while {($latency <= $max_latency) && (![string match "unreachable" [get_check_in
 
 
 if {[string match "unreachable" [get_check_info -status -witness checker_bind.wcet_p_a]]} {
+    # Output WCET: -3 because of preparing cycle + unreachable cycle + incr latency
     puts "Loop finished. WCET is [expr {$latency - 3}]"
 } else {
-    puts "Loop finished without solution?"
+    puts "Loop finished without solution!"
 }
 
-
-
-
-# check -all [get_checks]
-
-
-
-#Just some random things I could need
-#get_counterexample_value
-#get_counterexample_value -signals {serdiv.out_vld_o} checker_bind.wcet_p_a
-#
-#check -pass [ list checker_bind.wcet_p_a ]
-#get_check_info -status checker_bind.upec_dit_unrolled_p_a
-#get_check_info -status -witness checker_bind.wcet_p_a
 
 
 

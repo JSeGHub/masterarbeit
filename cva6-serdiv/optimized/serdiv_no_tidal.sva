@@ -10,7 +10,8 @@ module property_checker import ariane_pkg::*;
   default clocking default_clk @(posedge clk_i); endclocking
 
   localparam MIN_LATENCY = 0;
-  localparam MAX_LATENCY = 5;
+  localparam MAX_LATENCY = 10;
+
 
   property wcet_p;
     (serdiv.in_rdy_o == 1'b1) && (serdiv.in_vld_i == 1'b0) && (serdiv.flush_i == 1'b0)
@@ -22,6 +23,17 @@ module property_checker import ariane_pkg::*;
     ##1 (serdiv.out_vld_o == 1'b1); 	
   endproperty
   wcet_p_a: assert property (disable iff (serdiv.flush_i | !rst_ni) wcet_p);
+
+  property wcet2_p;
+    (serdiv.in_rdy_o == 1'b1) && (serdiv.in_vld_i == 1'b0) && (serdiv.flush_i == 1'b0)
+    ##1 (serdiv.in_vld_i == 1'b1)
+    ##0 (serdiv.flush_i == 1'b0)[*1:$]
+  implies 
+    (serdiv.out_vld_o == 1'b0)                   // Setup cycle
+    ##[2:$] (serdiv.out_vld_o == 1'b0) 
+    ##1 (serdiv.out_vld_o == 1'b1);
+  endproperty
+  wcet2_p_a: assert property (disable iff (serdiv.flush_i | !rst_ni) wcet2_p);
 
 property wcet1_p;
     (serdiv.in_rdy_o == 1'b1) && (serdiv.in_vld_i == 1'b0) && (serdiv.flush_i == 1'b0)
