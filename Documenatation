@@ -224,3 +224,8 @@ if {[string match "unreachable" [get_check_info -status -witness checker_bind.wc
 8. Add multiplier as comparison to serdiv
 Change TCL for multiplier
 Change SVA (if needed)
+
+9. Multiplier kombinatorisch, daher nur 1 Zyklus? --> Testen und approven
+Schreibe das TCL neu und schön
+10. weiter Multiplier ausprobieren, evtl. von IBEX oder opencores, ansonsten einfach von GIT
+11. RSA Modul überprüfen und WCET und BECT aufstellen. Evtl. auch DLaufzeiten entnehmen und abspeichern.

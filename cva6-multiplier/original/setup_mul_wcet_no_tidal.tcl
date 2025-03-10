@@ -1,9 +1,9 @@
 #################
 # WCET - SETUP #
 ################
-restart -force
+#restart -force
 set script_path [file dirname [file normalize [info script]]]
-break
+#break
 
 #############################
 # HELPER-FUNCTIONS & PARAMS #
@@ -106,17 +106,24 @@ proc find_first_one { {signal "checker_bind.wcet_in_p_a"} } {
 # TODO 
 # Auswahl treffen mit TCL Auswahlliste, welche Dateien aufgerufen werden sollen. Abh?ngig von Serdiv, multiplier und RSA
 
-read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../common/cf_math_pkg.sv}
-read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../common/rvfi_pkg.sv}
-read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../common/riscv_pkg.sv}
-read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../common/ariane_dm_pkg.sv}
-read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../common/ariane_pkg.sv}
-read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../common/cv64a6_imafdc_sv39_config_pkg.sv}
-read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../common/config_pkg.sv}
+
+#read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../include/cf_math_pkg.sv}
+#read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../include/rvfi_pkg.sv}
+read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../include/riscv_pkg.sv}
+#read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../include/ariane_dm_pkg.sv}
+read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../include/ariane_pkg.sv}
+read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../include/cv64a6_imafdc_sv39_config_pkg.sv}
+read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../include/config_pkg.sv}
+read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../include/build_config_pkg.sv}
+read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../include/cv64a60ax_config_pkg.sv}
 #read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../common/lzc.sv}
+
+read_verilog -golden -pragma_ignore {} -version sv2012 {$script_path/../include/*.sv}
+read_verilog -golden -pragma_ignore {} -version sv2012 {$script_path/../include/*.svh}
+
 read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/multiplier.sv}
 
-set_elaborate_option -golden -verilog_parameter {WIDTH=8}
+set_elaborate_option -golden -verilog_parameter {WIDTH=32}
 
 elaborate -golden
 
