@@ -1,9 +1,9 @@
 #################
 # WCET - SETUP #
 ################
-
+restart -force
 set script_path [file dirname [file normalize [info script]]]
-
+break
 
 #############################
 # HELPER-FUNCTIONS & PARAMS #
@@ -103,14 +103,18 @@ proc find_first_one { {signal "checker_bind.wcet_in_p_a"} } {
 # Design Setup and Verification #
 #################################
 
+# TODO 
+# Auswahl treffen mit TCL Auswahlliste, welche Dateien aufgerufen werden sollen. Abh?ngig von Serdiv, multiplier und RSA
+
 read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../common/cf_math_pkg.sv}
 read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../common/rvfi_pkg.sv}
 read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../common/riscv_pkg.sv}
 read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../common/ariane_dm_pkg.sv}
 read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../common/ariane_pkg.sv}
 read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../common/cv64a6_imafdc_sv39_config_pkg.sv}
-read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../common/lzc.sv}
-read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/serdiv.sv}
+read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../common/config_pkg.sv}
+#read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/../common/lzc.sv}
+read_verilog -golden  -pragma_ignore {}  -version sv2012 {$script_path/multiplier.sv}
 
 set_elaborate_option -golden -verilog_parameter {WIDTH=8}
 
@@ -120,28 +124,29 @@ compile -golden
 
 set_mode mv
 
+
 # List all .sva files in the directory
-puts "Available SVA files in $script_path:"
-set sva_files [glob -nocomplain $script_path/*.sva]
+#puts "Available SVA files in $script_path:"
+#set sva_files [glob -nocomplain $script_path/*.sva]
 
-if {[llength $sva_files] == 0} {
-    puts "No SVA files found!"
-    exit
-}
+#if {[llength $sva_files] == 0} {
+#    puts "No SVA files found!"
+#    exit
+#}
 
-foreach f $sva_files { puts [file tail $f] }
+#foreach f $sva_files { puts [file tail $f] }
 
 # Ask the user to enter a file name
-puts "Enter the desired SVA filename (including extension):"
-flush stdout
-gets stdin sva_file
+#puts "Enter the desired SVA filename (including extension):"
+#flush stdout
+#gets stdin sva_file
 
 # Read the selected SVA file
-read_sva -version {sv2012} "$script_path/$sva_file"
+#read_sva -version {sv2012} "$script_path/$sva_file"
 
 #read_sva -version {sv2012} {$script_path/serdiv_no_tidal.sva}
 #read_sva -version {sv2012} {$script_path/setup_input_wcet.sva}
-#read_sva -version {sv2012} {$script_path/serdiv_no_tidal_input.sva}
+read_sva -version {sv2012} {$script_path/multiplier_no_tidal_input.sva}
 
 #######
 #######

@@ -3,7 +3,7 @@
 module property_checker import ariane_pkg::*;
   #(parameter WIDTH = 8)
   (
-  input clk_i,
+  input clk_i, 
   input rst_ni
   );
 
@@ -11,7 +11,7 @@ module property_checker import ariane_pkg::*;
 
   localparam WCET_LATENCY = 9;
   localparam MIN_LATENCY = 1;
-  localparam MAX_LATENCY = 7;
+  localparam MAX_LATENCY = 8;
   localparam INPUT_A_VAL = 8'b00111111;
 
 
@@ -39,48 +39,6 @@ property wcet_in_2_p; //Zeigt, dass der Wert aus wcet_in_p tats?chlich die WCET 
     ##[MIN_LATENCY:MAX_LATENCY] (serdiv.out_vld_o == 1'b1) // Hier wird mindestens einmal out_vld == 1 erwartet
   endproperty
   wcet_in_2_p_a: assert property (disable iff (serdiv.flush_i | !rst_ni) wcet_in_2_p);
-
-
-/*
-  property wcet2_p;
-    (serdiv.in_rdy_o == 1'b1) && (serdiv.in_vld_i == 1'b0) && (serdiv.flush_i == 1'b0)
-    ##1 (serdiv.in_vld_i == 1'b1)
-    ##0 (serdiv.flush_i == 1'b0)[*1:$]
-  implies 
-    (serdiv.out_vld_o == 1'b0)                   // Setup cycle
-    ##[2:$] (serdiv.out_vld_o == 1'b0) 
-    ##1 (serdiv.out_vld_o == 1'b1);
-  endproperty
-  wcet2_p_a: assert property (disable iff (serdiv.flush_i | !rst_ni) wcet2_p);
-
-
-
-
-property wcet1_p;
-    (serdiv.in_rdy_o == 1'b1) && (serdiv.in_vld_i == 1'b0) && (serdiv.flush_i == 1'b0)
-    ##1 (serdiv.in_vld_i == 1'b1)
-    ##0 (serdiv.flush_i == 1'b0)&&(serdiv.out_vld_o == 1'b0)[*MAX_LATENCY]  // Setup cycle
-    ##1 (serdiv.flush_i == 1'b0)
-  implies
-    ##(MAX_LATENCY+1) (serdiv.out_vld_o == 1'b1); 	
-  endproperty
-  wcet1_p_a: assert property (disable iff (!rst_ni) wcet1_p);
-
-property bcet_p;
-    (serdiv.in_rdy_o == 1'b1) && (serdiv.in_vld_i == 1'b0) && (serdiv.flush_i == 1'b0)
-    ##1 (serdiv.in_vld_i == 1'b1)
-    ##0 (serdiv.flush_i == 1'b0)[*MIN_LATENCY+1]  // + Setup cycle
-  implies
-    ##(MIN_LATENCY+1) (serdiv.out_vld_o == 1'b1);
-endproperty
-bcet_p_a: assert property (disable iff (!rst_ni) bcet_p);
-*/
-  /* 
-  Latency is the number of clock cycles between (serdiv.in_vld_i == 1'b1) and (serdiv.out_vld_o == 1'b1).
-  (serdiv.in_vld_i == 1'b1) is given at t+1.
-  (serdiv.out_vld_o == 1'b1) arrives at t+1+MAX_LATENCY.
-  A value of MAX_LATENCY = 9 can still produce a witness, so I guess the maximum latency is 9 clock cycles in that case.
-  */
 
 endmodule
 

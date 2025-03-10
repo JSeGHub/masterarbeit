@@ -150,5 +150,77 @@ if {[string match "unreachable" [get_check_info -status -witness checker_bind.wc
 }
 
 
-6.
+6. INPUT hinzugefügt
 
+module property_checker import ariane_pkg::*;
+  #(parameter WIDTH = 8)
+  (
+  input clk_i, 
+  input rst_ni
+  );
+
+  default clocking default_clk @(posedge clk_i); endclocking
+
+  localparam WCET_LATENCY = 9;
+  localparam MIN_LATENCY = 1;
+  localparam MAX_LATENCY = 8;
+  localparam INPUT_A_VAL = 8'b00111111;
+
+
+property wcet_in_p; // Zum suchen der WCET, kann evtl durch wcet_in_2_p ersetzt werden.
+    (serdiv.in_rdy_o == 1'b1) && (serdiv.in_vld_i == 1'b0) && (serdiv.flush_i == 1'b0) && (serdiv.op_a_i == INPUT_A_VAL)
+    ##1 (serdiv.in_vld_i == 1'b1) && (serdiv.flush_i == 1'b0) && (serdiv.op_a_i == INPUT_A_VAL)
+    ##1 (serdiv.in_vld_i == 1'b0) [*WCET_LATENCY]
+  implies 
+    (serdiv.out_vld_o == 1'b0)                   // Setup cycle
+    ##1 (serdiv.out_vld_o == 1'b0)[*MAX_LATENCY] // All calc has to be finished before MAX_LATENCY --> Real Latency = MAX_LATENCY-1
+    ##[1:WCET_LATENCY-MAX_LATENCY] (serdiv.out_vld_o == 1'b0); // Show, that there is no rising out_vld_o afterwards as well (up to WCET_LATENCY of the system) : Maybe not needed
+    //##1 (serdiv.out_vld_o == 1'b1); 	
+  endproperty
+  wcet_in_p_a: assert property (disable iff (serdiv.flush_i | !rst_ni) wcet_in_p);
+
+7. Update TCL
+
+# Initialize latency value
+set latency_wcet 1
+# Set stopping condition: twice the WIDTH
+set max_latency [expr {$width * 2}]
+
+# Update MAX_LATENCY in the property file
+exec sed -i "s/localparam MAX_LATENCY = .*/localparam MAX_LATENCY = $latency_wcet;/" $sv_file
+
+# Initial Check to start
+after 1000
+check  -all [get_checks]
+while {($latency_wcet <= $max_latency) && (![string match "unreachable" [get_check_info -status -witness checker_bind.wcet_in_p_a]])} {
+
+    puts $latency_wcet
+    # Update MAX_LATENCY in the property file
+    exec sed -i "s/localparam MAX_LATENCY = .*/localparam MAX_LATENCY = $latency_wcet;/" $sv_file
+    
+    # Reload and rerun SVA - saving MAX_LATENCY takes time, because it's an extern action
+    after 1000
+    read_sva
+    
+    # Check witness
+    compute_witness checker_bind.wcet_in_p_a
+    #check -pass [ list checker_bind.wcet_p_a ]
+    
+    # Increment latency for the next iteration
+    incr latency_wcet
+    puts $latency_wcet
+}
+
+if {[string match "unreachable" [get_check_info -status -witness checker_bind.wcet_in_p_a]]} {
+    # Output WCET: -3 because of: preparing cycle + unreachable cycle + incr latency_wcet
+    puts "Loop finished. WCET is [expr {$latency_wcet - 3}]!"
+    # Update MAX_LATENCY in the property file to actual max latency
+    set adjusted_latency [expr {$latency_wcet - 2}]
+    exec sed -i "s/localparam MAX_LATENCY = .*/localparam MAX_LATENCY = $adjusted_latency;/" $sv_file
+} else {
+    puts "Loop finished without solution!"
+}
+
+8. Add multiplier as comparison to serdiv
+Change TCL for multiplier
+Change SVA (if needed)
