@@ -229,3 +229,6 @@ Change SVA (if needed)
 Schreibe das TCL neu und schön
 10. weiter Multiplier ausprobieren, evtl. von IBEX oder opencores, ansonsten einfach von GIT
 11. RSA Modul überprüfen und WCET und BECT aufstellen. Evtl. auch DLaufzeiten entnehmen und abspeichern.
+
+ACHTUNG: sobald ein proof gefunden wurde wird abgebrochen. ich sollte aber alles überprüfen, falls "hold-fail-hold" o.ä.
+
