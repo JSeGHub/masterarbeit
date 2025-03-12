@@ -10,29 +10,30 @@ module property_checker_mult import ariane_pkg::*;
   default clocking default_clk @(posedge clk_i); endclocking
 
   localparam WCET_LATENCY = 9;
-  localparam MIN_LATENCY = 2;
-  localparam MAX_LATENCY = 16;
+  localparam MIN_LATENCY = 1;
+  localparam MAX_LATENCY = 8;
   localparam INPUT_A_VAL = 8'b00111111;
 
 
 property wcet_p;
-    (multiplier_no_packages.mult_valid_i == 1'b0) 
-    ##1 (multiplier_no_packages.mult_valid_i == 1'b1 )&& (multiplier_no_packages.operation_i == MUL)
+    (multiplier_no_packages.mult_valid_i == 1'b0)
+    ##1 (multiplier_no_packages.mult_valid_i == 1'b1)
   implies 
-    //(multiplier_no_packages.mult_valid_o == 1'b0)                   // Setup cycle
-    ##[MIN_LATENCY:MAX_LATENCY] (multiplier_no_packages.mult_valid_o == 1'b0)
+    (multiplier_no_packages.mult_valid_o == 1'b0)                   // Setup cycle
+    ##1 (multiplier_no_packages.mult_valid_o == 1'b0)[*MAX_LATENCY] 
     ##1 (multiplier_no_packages.mult_valid_o == 1'b1); 	
   endproperty
   wcet_p_a: assert property (disable iff (!rst_ni) wcet_p);
 
-  /*
-  property wcet_in_p;
+property wcet_in_p; // Zum suchen der WCET, kann evtl durch wcet_in_2_p ersetzt werden.
    (multiplier_no_packages.mult_valid_i == 1'b0) && (multiplier_no_packages.operand_a_i == INPUT_A_VAL)
     ##1 (multiplier_no_packages.mult_valid_i == 1'b1) && (multiplier_no_packages.operand_a_i == INPUT_A_VAL)
-    //##1 (multiplier_no_packages.mult_valid_i == 1'b0) [*WCET_LATENCY]
+    ##1 (multiplier_no_packages.mult_valid_i == 1'b0) [*WCET_LATENCY]
   implies 
     (multiplier_no_packages.mult_valid_o == 1'b0)                   // Setup cycle
-    ##1 (multiplier_no_packages.mult_valid_o == 1'b0)[*MAX_LATENCY]; // All calc has to be finished before MAX_LATENCY
+    ##1 (multiplier_no_packages.mult_valid_o == 1'b0)[*MAX_LATENCY] // All calc has to be finished before MAX_LATENCY --> Real Latency = MAX_LATENCY-1
+    ##[1:WCET_LATENCY-MAX_LATENCY] (multiplier_no_packages.mult_valid_o == 1'b0); // Show, that there is no rising mult_valid_o afterwards as well (up to WCET_LATENCY of the system) : Maybe not needed
+    //##1 (multiplier_no_packages.mult_valid_o == 1'b1); 	
   endproperty
   wcet_in_p_a: assert property (disable iff (!rst_ni) wcet_in_p);
 
@@ -41,13 +42,13 @@ property wcet_p;
 property wcet_in_2_p; //Zeigt, dass der Wert aus wcet_in_p tats?chlich die WCET ist. Kann auch gleichzeitig f?r BCET genutzt werden.
     (multiplier_no_packages.mult_valid_i == 1'b0) && (multiplier_no_packages.operand_a_i == INPUT_A_VAL)
     ##1 (multiplier_no_packages.mult_valid_i == 1'b1) && (multiplier_no_packages.operand_a_i == INPUT_A_VAL)
+    //##0 (multiplier_no_packages.flush_i == 1'b0) [*MAX_LATENCY]
   implies 
     // Proof: innerhalb des Bereichs von MIN_LATENCY bis MAX_LATENCY mindestens einmal out_vld == 1 ist
     (multiplier_no_packages.mult_valid_o == 1'b0)                   // Setup cycle
-    ##[MIN_LATENCY:MAX_LATENCY] (multiplier_no_packages.mult_valid_o == 1'b1) // Using 1 as minimum and MAX_LATENCY+1 to ensure valid range
+    ##[MIN_LATENCY:MAX_LATENCY] (multiplier_no_packages.mult_valid_o == 1'b1) // Hier wird mindestens einmal out_vld == 1 erwartet
   endproperty
   wcet_in_2_p_a: assert property (disable iff ( !rst_ni) wcet_in_2_p);
-  */
 
 endmodule
 

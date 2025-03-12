@@ -1,10 +1,10 @@
 /* Copyright 2018 ETH Zurich and University of Bologna.
  * Copyright and related rights are licensed under the Solderpad Hardware
- * License, Version 0.51 (the “License”); you may not use this file except in
+ * License, Version 0.51 (the ?License?); you may not use this file except in
  * compliance with the License.  You may obtain a copy of the License at
  * http://solderpad.org/licenses/SHL-0.51. Unless required by applicable law
  * or agreed to in writing, software, hardware and materials distributed under
- * this License is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR
+ * this License is distributed on an ?AS IS? BASIS, WITHOUT WARRANTIES OR
  * CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  *
@@ -969,7 +969,7 @@ package riscv;
 
   // trace log compatible to spikes commit log feature
   // pragma translate_off
-  function string spikeCommitLog(logic [63:0] pc, priv_lvl_t priv_lvl, logic [31:0] instr,
+  /*function string spikeCommitLog(logic [63:0] pc, priv_lvl_t priv_lvl, logic [31:0] instr,
                                  logic [4:0] rd, logic [63:0] result, logic rd_fpr);
     string rd_s;
     string instr_word;
@@ -994,6 +994,7 @@ package riscv;
       return $sformatf("%d 0x%h %s\n", priv_lvl, pc, instr_word);
     end
   endfunction
+*/
 
   typedef struct {
     byte priv;
