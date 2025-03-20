@@ -87,6 +87,12 @@ module property_checker
   endproperty
   modmult_general_p_a: assert property (disable iff (rst_i) modmult_general_p);
     
+  property WCET_Check_p;
+    int count = 0;
+    @(posedge clk) disable iff (reset)
+    (ds, count = 0) |=> ##[MPWID:MPWID+2] ready;
+  endproperty
+  WCET_Check_p_a: assert property (disable iff (rst_i) WCET_Check_p);
 
 `end_tda
 

@@ -232,3 +232,6 @@ Schreibe das TCL neu und schön
 
 ACHTUNG: sobald ein proof gefunden wurde wird abgebrochen. ich sollte aber alles überprüfen, falls "hold-fail-hold" o.ä.
 
+12. Figure out Best Case and Worst Case, then build loop around MPAND and MODULUS
+
+
