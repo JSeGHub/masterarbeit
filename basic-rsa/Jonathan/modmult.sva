@@ -17,7 +17,7 @@ module property_checker
 
 
   localparam [MPWID-1:0] mpwid_zero = '0;
-  localparam T_WCET = 5;
+  localparam T_WCET = 8;
   localparam T_BCET = 1;
 
 
@@ -118,8 +118,8 @@ module property_checker
 
 
   localparam WIDTH_IN = 7;
-  localparam INPUT_A[WIDTH_IN] = '{1,2,4,8,9,11,15};
-  localparam INPUT_B[WIDTH_IN] = '{1,2,4,8,9,11,15};
+  localparam int INPUT_A[WIDTH_IN] = '{0,1,2,4,8,12,15};
+  localparam int INPUT_B[WIDTH_IN] = '{0,1,2,4,8,12,15};
   localparam T_WCET_IN = 6;
   localparam T_BCET_IN = 1;
 

@@ -160,6 +160,9 @@ foreach row $wcet_results {
 # Calculate values for testing based on mpwid
 set values {}
 
+# Add lowest value: 0 
+lappend values 0
+
 # Add lowest value: 1 
 lappend values 1
 
