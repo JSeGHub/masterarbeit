@@ -158,6 +158,101 @@ proc select_files {script_path extensions} {
         }
     }
 
+
+###################################
+# generate_wcet_signal_properties #
+###################################
+
+    proc generate_wcet_signal_properties {output_file module_name input_names } {
+
+    # Open file for writing
+    set fd [open $output_file w]
+    
+    puts $fd "// @lang=sva @ts=8"
+    puts $fd ""
+    puts $fd "module property_checker"
+    puts $fd "  // Adjust this parameter before elaboration with"
+    puts $fd "  // set_elaborate_option -golden -vhdl_generic {mpwid=4}"
+    puts $fd "  #(parameter MPWID = 4)"
+    puts $fd "  ("
+    puts $fd "  input clk_i,"
+    puts $fd "  input rst_i"
+    puts $fd "  );"
+    puts $fd ""
+    puts $fd "  default clocking default_clk @(posedge clk_i); endclocking"
+    puts $fd ""
+    puts $fd "  \`include \"tidal.sv\""
+    puts $fd ""
+    puts $fd "\`begin_tda(ops)"
+    puts $fd ""
+    puts $fd "  localparam T_WCET = 5;"
+    puts $fd "  localparam T_BCET = 1;"
+    puts $fd ""
+    puts $fd "  property bcet_p;"
+    puts $fd "    t ##0 ($module_name.ds == 1'b1) and"
+    puts $fd "    t ##0 ($module_name.ready == 1'b1) and"
+    puts $fd "    t ##1 ($module_name.ds == 1'b0) \[*T_BCET+1\]"
+    puts $fd "  implies"
+    puts $fd "    t ##(T_BCET) ($module_name.ready == 1'b0);"
+    puts $fd "  endproperty"
+    puts $fd " bcet_p_a: assert property (disable iff (rst_i) bcet_p);"
+    puts $fd ""
+    puts $fd "  property wcet_p;"
+    puts $fd "    t ##0 ($module_name.ds    == 1'b1) and"
+    puts $fd "    t ##0 ($module_name.ready == 1'b1) and"
+    puts $fd "    t ##1 ($module_name.ds    == 1'b0) \[*T_WCET+1\] and"
+    puts $fd "    t ##1 ($module_name.ready == 1'b0) \[*T_WCET\]"
+    puts $fd "  implies    "
+    puts $fd "    t ##(T_WCET+1) ($module_name.ready == 1'b1);"
+    puts $fd "  endproperty"
+    puts $fd "  wcet_p_a: assert property (disable iff (rst_i) wcet_p);"
+    puts $fd ""
+    puts $fd "\`end_tda"
+    puts $fd ""
+    puts $fd ""
+    puts $fd "  localparam WIDTH_IN = 6;"
+    puts $fd "  localparam int INPUT_A\[WIDTH_IN\] = '{0,1,2,4,8,15};"
+    puts $fd "  //localparam int INPUT_B\[WIDTH_IN\] = '{0,1,2,4,8,15};"
+    puts $fd "  localparam T_WCET_IN = 6;"
+    puts $fd "  localparam T_BCET_IN = 1;"
+    puts $fd ""
+    
+    # Generate signal-specific properties
+    foreach signal_name $input_names {
+        puts $fd "  // Property for $module_name.$signal_name"
+        puts $fd "  property wcet_in_${signal_name}_p(a, ts);"
+        puts $fd "    t ##0 ($module_name.ds == 1'b1) and"
+        puts $fd "    t ##0 ($module_name.ready == 1'b1) and"
+        puts $fd "    t ##0 ($module_name.$signal_name == INPUT_A\[a\]) and"
+        puts $fd "    t ##1 ($module_name.ds == 1'b0) \[*ts+1\] and"
+        puts $fd "    t ##1 ($module_name.ready == 1'b0) \[*ts\]"
+        puts $fd "  implies "
+        puts $fd "    t ##(ts+1) ($module_name.ready == 1'b1);"
+        puts $fd "  endproperty"
+        puts $fd ""
+        puts $fd " genvar a,ts;"
+        puts $fd "  generate"
+        puts $fd "      for (a = 0; a < \$size(INPUT_A); a++) begin"
+        puts $fd "         for (ts = 1-T_BCET_IN; ts < T_WCET_IN; ts++) begin"
+        puts $fd "            wcet_in_${signal_name}_p_a: assert property (disable iff (rst_i) wcet_in_${signal_name}_p (a,ts));"
+        puts $fd "         end"
+        puts $fd "      end"
+        puts $fd "  endgenerate"
+        puts $fd ""
+    }
+ 
+    
+    # Close the module and TDA sections
+    puts $fd "endmodule"
+    puts $fd "bind $module_name property_checker #(.MPWID(MPWID)) checker_bind(.clk_i(clk), .rst_i(reset));"
+    
+    # Close the file
+    close $fd
+    puts "Generated SVA properties for signals: $input_names"
+    puts "Output file: $output_file"
+}
+
+
 #####################################################################################################################################
 #####################################################################################################################################
 
@@ -176,9 +271,7 @@ proc select_files {script_path extensions} {
     #        read_sva -version {sv2012} $f
     #    }
     #}
-
-    set sva_file [file join $script_path "modmult.sva"]
-
+    
     #clear_screen
     #puts "Insert WIDTH:"
     #flush stdout
@@ -206,14 +299,11 @@ proc select_files {script_path extensions} {
     compile -golden
     set_mode mv
 
-    edit_file $script_path/../modmult.vhd
-    edit_file $script_path/../modmult.sva
+    edit_file $script_path/modmult.vhd
+    edit_file $script_path/property_checker_generated.sva
 
 
-    set_read_sva_option -loop_iter_threshold 1025
-    read_sva -version {sv2012} {$sva_file}
 
-    set_check_option -local_processes 8
     #check -verbose -all [get_checks]
 
 
@@ -246,6 +336,21 @@ proc select_files {script_path extensions} {
     # 5. Ask for output name
     puts "insert output name"
     set output_name [input_text "Enter the output name" "result"]
+
+############
+# Read SVA #
+############
+
+    set_read_sva_option -loop_iter_threshold 1025
+    generate_wcet_signal_properties "property_checker_generated.sva" $module_name $input_names
+    set sva_file [file join $script_path "property_checker_generated.sva"]
+
+    read_sva -version {sv2012} {$sva_file}
+
+    set_check_option -local_processes 8
+
+#######################################################################################################################
+#######################################################################################################################
 
 
 ##############################
@@ -296,80 +401,6 @@ proc select_files {script_path extensions} {
 
 
 
-##############################################
-# Loop input dependend WCET - Proof unvacous #
-##############################################
-if {0} {
-
-set max_wcet [expr {$mpwid * 2 - 1}]  ;# Maximales WCET
-#set values {0 1 2 [expr {pow(2,$mpwid)/4}] [expr {pow(2,$mpwid)/2}] [expr {pow(2,$mpwid)-2}] [expr {pow(2,$mpwid)-1}] [expr {pow(2,$mpwid)}]}
-set values [list 1 2 \
-    [expr {int(pow(2,$mpwid)-1)}] \
-    [expr {int(pow(2,$mpwid))}]]
-
-#set values [list 1 2 [expr {int(pow(2,$mpwid)/4)}] \
-#    [expr {int(pow(2,$mpwid)/2)}] \
-#    [expr {int(pow(2,$mpwid)-2)}] \
-#    [expr {int(pow(2,$mpwid)-1)}] \
-#    [expr {int(pow(2,$mpwid))}]]
-puts $values
-after 1000  ;# Wartezeit für Stabilität
-set prev_status "vacuous"  ;# Letzter Status für Vergleich
-set wcet_results {}  ;# Initialize the list to empty at the beginning
-
-# Schleifen für mpand, mplier und modulus
-foreach mpand $values {
-    foreach mplier $values {
-        foreach modulus $values {
-            puts "mpand: $mpand, mplier: $mplier, modulus: $modulus"
-            set prev_status "vacuous"
-            set last_wcet_report -1  ;# Letzter ausgegebener WCET-Wert
-
-            for {set t_wcet 3} {$t_wcet <= $max_wcet} {incr t_wcet} {
-    
-                exec sed -i "s/localparam T_WCET = .*/localparam T_WCET = $t_wcet;/"  $sva_file
-                exec sed -i "s/localparam MPAND = .*/localparam MPAND = $mpand;/"   $sva_file
-                exec sed -i "s/localparam MPLIER = .*/localparam MPLIER = $mplier;/"  $sva_file
-                exec sed -i "s/localparam MODULUS = .*/localparam MODULUS = $modulus;/" $sva_file
-    
-                after 1000
-                check  [list checker_bind.ops.wcet_in_p_a]
-
-                set status [get_check_info -status checker_bind.ops.wcet_in_p_a]
-
-                #if {[string match "vacuous" $status] && ![ string match "vacuous" $prev_status]} {
-                #    puts "WCET is $t_wcet" ;#not true WCET (calculate the cycles really included)
-                #}
-
-                # Falls WCET validiert wurde und nicht doppelt gespeichert wird
-                if {[string match "vacuous" $status] && ![string match "vacuous" $prev_status]} {
-                    if {$last_wcet_report != $t_wcet} {
-                        # Speichere Ergebnis in der Liste
-                        lappend wcet_results [list $mpand $mplier $modulus  [expr {$t_wcet-1}]]
-                        puts "WCET is [expr {$t_wcet-1}] with $mpand $mplier $modulus"
-                        set last_wcet_report $t_wcet
-                        break
-                    }
-                }
-                set prev_status $status
-            }
-        }
-    }
-}
-
-#Tabelle am Ende ausgeben
-puts "\n=== WCET Ergebnisse ==="
-puts "MPAND  | MPLIER | MODULUS | WCET"
-puts "---------------------------------"
-foreach row $wcet_results {
-    foreach {mpand mplier modulus t_wcet} $row {}
-    puts [format "%-6d | %-6d | %-7d | %-3d" $mpand $mplier $modulus $t_wcet]
-}}
-
-
-
-
-
 ######################################
 # Calc Inputs for Mplier and Modulus #
 ######################################
@@ -414,39 +445,44 @@ foreach val $values {
 }
 append sva_values_list "}"
 
-# Update the SVA file with the generated values lists for INPUT_A and INPUT_B
-exec sed -i "s/localparam int\\\ INPUT_A\\\[WIDTH_IN\\\] = .*/localparam int\ INPUT_A\[WIDTH_IN\] = $sva_values_list;/" $sva_file
-exec sed -i "s/localparam int\\\ INPUT_B\\\[WIDTH_IN\\\] = .*/localparam int\ INPUT_B\[WIDTH_IN\] = $sva_values_list;/" $sva_file
+
+
 exec sed -i "s/localparam WIDTH_IN = .*/localparam WIDTH_IN = $total_values;/"  $sva_file
 exec sed -i "s/localparam T_BCET_IN = .*/localparam T_BCET_IN = $T_BCET_EXE;/"  $sva_file
 exec sed -i "s/localparam T_WCET_IN = .*/localparam T_WCET_IN = [expr {$T_WCET_EXE+1}];/"  $sva_file
-after 1000; # wait for stability/read-in of the new values
-#check -verbose -all [get_checks]; # run all assertions (generate loop of inputs)
-check_assertion -force [get_assertions]
 
-set te $T_WCET_EXE
-set ts $T_BCET_EXE
 
-# Open a file for writing the query results
-set output_file [open "[file join $script_path "query_output.txt"]" w]
-#puts $output_file "a b ts status"
+foreach filename $input_names {
+    set output_file [open "[file join $script_path "out_input_$filename.txt"]" w]
 
-#Read all assertions results
-for {set i 0} {$i < $total_values} {incr i} {
-    for {set j 0} {$j < $total_values} {incr j} {
+
+
+    
+    # Update the SVA file with the generated values lists for INPUT_A and INPUT_B
+    exec sed -i "s/localparam int\\\ INPUT_A\\\[WIDTH_IN\\\] = .*/localparam int\ INPUT_A\[WIDTH_IN\] = $sva_values_list;/" $sva_file
+    #exec sed -i "s/localparam int\\\ INPUT_B\\\[WIDTH_IN\\\] = .*/localparam int\ INPUT_B\[WIDTH_IN\] = $sva_values_list;/" $sva_file
+    after 1000; # wait for stability/read-in of the new values
+    #check -verbose -all [get_checks]; # run all assertions (generate loop of inputs)
+    check_assertion -force [get_assertions]
+
+    set te $T_WCET_EXE
+    set ts $T_BCET_EXE
+
+    # Open a file for writing the query results
+    set output_file [open "[file join $script_path "query_output.txt"]" w]
+    #puts $output_file "a b ts status"
+
+    #Read all assertions results
+    for {set i 0} {$i < $total_values} {incr i} {
         for {set t $ts} {$t <= $te} {incr t} {
             
-            #set query [get_check_info -status {checker_bind.genblk1[${i}].genblk1[${j}].genblk1[${t}].wcet_in_p_a}]
-            set query "checker_bind.genblk1\[$i\].genblk1\[$j\].genblk1\[$t\].wcet_in_p_a"
+            #set query [get_check_info -status {checker_bind.genblk1[${i}].genblk1[${j}].genblk1[${t}].wcet_in_2_p_a}]
+            set query "checker_bind.genblk1\[$i\].genblk1\[$t\].wcet_in_2_p_a"
             set query_results [get_check_info -status $query]
 
             # Get actual values from the list
             set a_val [lindex $values $i]
-            set b_val [lindex $values $j]
-            
-            # Print to console
-            #puts "a=$a_val, b=$b_val, t=$t, $query_results"
-            
+
             # Write to file only if status is "hold"
             if {[string match "hold" $query_results]} {
                 puts $output_file "$a_val, $b_val, $t, $query_results"
@@ -454,6 +490,7 @@ for {set i 0} {$i < $total_values} {incr i} {
             }
         }
     }
+    close $output_file
 }
 
 
@@ -461,9 +498,8 @@ for {set i 0} {$i < $total_values} {incr i} {
 # Print Configuration Summary #
 ###############################
 
-close $output_file
-puts "Query results have been saved to [file join $script_path "query_output.txt"] (only 'hold' status values)"
 
+puts "Query results have been saved to [file join $script_path "query_output.txt"] (only 'hold' status values)"
 puts "Selected granularity: $granularity test points"
 puts "BCET is $T_BCET_EXE Cycles"
 puts "WCET is $T_WCET_EXE Cycles"
@@ -486,3 +522,66 @@ puts "Output name: $output_name"
 
 #Check only assertions, proof not witness: check_assertion -force [get_assertions]
 #same for properties:check_property [get_properties]
+
+if {0} {
+# Procedure to generate SVA properties for different signal names
+proc generate_wcet_properties {signal_names output_file} {
+    set fd [open $output_file w]
+    
+    # Write the SVA header
+    puts $fd "// Auto-generated WCET properties"
+    puts $fd "// Generated on [clock format [clock seconds] -format {%Y-%m-%d %H:%M:%S}]"
+    puts $fd ""
+    
+    # For each signal name, generate a specific property
+    foreach signal_name $signal_names {
+        puts $fd "property wcet_in_2_${signal_name}_p(a, ts);"
+        puts $fd "    t ##0 (modmult.ds == 1'b1) and"
+        puts $fd "    t ##0 (modmult.ready == 1'b1) and"
+        puts $fd "    t ##0 (modmult.$signal_name == INPUT_A\[a\]) and"
+        puts $fd "    t ##1 (modmult.ds == 1'b0) \[*ts+1\] and"
+        puts $fd "    t ##1 (modmult.ready == 1'b0) \[*ts\]"
+        puts $fd "  implies "
+        puts $fd "    t ##(ts+1) (modmult.ready == 1'b1);"
+        puts $fd "endproperty"
+        puts $fd ""
+        
+        # Instance of the property
+        puts $fd "// For modmult.$signal_name"
+        puts $fd "wcet_in_2_${signal_name}_p(input_a, ts);"
+        puts $fd ""
+    }
+    
+    close $fd
+    puts "Generated SVA properties for signals: $signal_names"
+    puts "Output file: $output_file"
+}
+
+# Example usage:
+# Define your signal names
+set my_signals {mplier mpland modulus}
+
+# Generate the SVA file
+generate_wcet_properties $my_signals "generated_wcet_properties.sva"
+
+# To use the generated file in your verification:
+# source_sva generated_wcet_properties.sva
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Example usage:
+#generate_wcet_signal_properties "property_checker_generated.sva" $module_name $input_names
