@@ -1,0 +1,6 @@
+0, 1, hold
+1, 2, hold
+2, 3, hold
+4, 4, hold
+8, 5, hold
+15, 5, hold
