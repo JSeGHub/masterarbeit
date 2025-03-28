@@ -2,7 +2,7 @@
 
 module property_checker
   // Adjust this parameter before elaboration with
-  // set_elaborate_option -golden -vhdl_generic {mpwid=4}
+  // set_elaborate_option -golden -vhdl_generic {MPWID = 4}
   #(parameter MPWID = 4)
   (
   input clk_i,
@@ -15,7 +15,7 @@ module property_checker
 
 `begin_tda(ops)
 
-  localparam T_WCET = 5;
+  localparam T_WCET = 9;
   localparam T_BCET = 1;
 
   property bcet_p;
@@ -25,7 +25,7 @@ module property_checker
   implies
     t ##(T_BCET) (modmult.ready == 1'b0);
   endproperty
- bcet_p_a: assert property (disable iff (rst_i) bcet_p);
+  bcet_p_a: assert property (disable iff (rst_i) bcet_p );
 
   property wcet_p;
     t ##0 (modmult.ds    == 1'b1) and
@@ -35,32 +35,30 @@ module property_checker
   implies    
     t ##(T_WCET+1) (modmult.ready == 1'b1);
   endproperty
-  wcet_p_a: assert property (disable iff (rst_i) wcet_p);
+  wcet_p_a: assert property (disable iff (rst_i) wcet_p );
 
 `end_tda
 
 
-  localparam WIDTH_IN = 6;
-  localparam int INPUT_A[WIDTH_IN] = '{0,1,2,4,8,15};
-  //localparam int INPUT_B[WIDTH_IN] = '{0,1,2,4,8,15};
-  localparam T_WCET_IN = 6;
+  localparam int INPUT_A[32] = '{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31};
+  localparam T_WCET_IN = 10;
   localparam T_BCET_IN = 1;
 
+ genvar a,ts;
   // Property for modmult.mpand
   property wcet_in_mpand_p(a, ts);
     t ##0 (modmult.ds == 1'b1) and
     t ##0 (modmult.ready == 1'b1) and
-    t ##0 (modmult.mpand == INPUT_A[a]) and
+    t ##0 (modmult.mpand[8-1:8-5-1] == INPUT_A[a]) and
     t ##1 (modmult.ds == 1'b0) [*ts+1] and
     t ##1 (modmult.ready == 1'b0) [*ts]
   implies 
     t ##(ts+1) (modmult.ready == 1'b1);
   endproperty
 
- genvar a,ts;
   generate
       for (a = 0; a < $size(INPUT_A); a++) begin: mpand
-         for (ts = 1-T_BCET_IN; ts < T_WCET_IN; ts++) begin: mpand
+         for (ts = T_BCET_IN-1; ts < T_WCET_IN; ts++) begin: mpand
             wcet_in_mpand_p_a: assert property (disable iff (rst_i) wcet_in_mpand_p (a,ts));
          end
       end
@@ -70,17 +68,16 @@ module property_checker
   property wcet_in_mplier_p(a, ts);
     t ##0 (modmult.ds == 1'b1) and
     t ##0 (modmult.ready == 1'b1) and
-    t ##0 (modmult.mplier == INPUT_A[a]) and
+    t ##0 (modmult.mplier[8-1:8-5-1] == INPUT_A[a]) and
     t ##1 (modmult.ds == 1'b0) [*ts+1] and
     t ##1 (modmult.ready == 1'b0) [*ts]
   implies 
     t ##(ts+1) (modmult.ready == 1'b1);
   endproperty
 
- genvar a,ts;
   generate
       for (a = 0; a < $size(INPUT_A); a++) begin: mplier
-         for (ts = 1-T_BCET_IN; ts < T_WCET_IN; ts++) begin: mplier
+         for (ts = T_BCET_IN-1; ts < T_WCET_IN; ts++) begin: mplier
             wcet_in_mplier_p_a: assert property (disable iff (rst_i) wcet_in_mplier_p (a,ts));
          end
       end
@@ -90,17 +87,16 @@ module property_checker
   property wcet_in_modulus_p(a, ts);
     t ##0 (modmult.ds == 1'b1) and
     t ##0 (modmult.ready == 1'b1) and
-    t ##0 (modmult.modulus == INPUT_A[a]) and
+    t ##0 (modmult.modulus[8-1:8-5-1] == INPUT_A[a]) and
     t ##1 (modmult.ds == 1'b0) [*ts+1] and
     t ##1 (modmult.ready == 1'b0) [*ts]
   implies 
     t ##(ts+1) (modmult.ready == 1'b1);
   endproperty
 
- genvar a,ts;
   generate
       for (a = 0; a < $size(INPUT_A); a++) begin: modulus
-         for (ts = 1-T_BCET_IN; ts < T_WCET_IN; ts++) begin: modulus
+         for (ts = T_BCET_IN-1; ts < T_WCET_IN; ts++) begin: modulus
             wcet_in_modulus_p_a: assert property (disable iff (rst_i) wcet_in_modulus_p (a,ts));
          end
       end
