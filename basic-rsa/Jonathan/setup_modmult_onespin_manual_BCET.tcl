@@ -1,5 +1,5 @@
 # @lang=tcl @ts=8
-
+set start_time [clock milliseconds]
 ######################################
 # Manual Input / Output Declarations #
 ######################################
@@ -11,7 +11,7 @@
     set module_name "modmult"
 
 #Data Input - Inserts here the real names of Data-Inputs like in your code
-    set input_names [list "mpand" "mplier" "modulus"]
+    set input_names [list "mpand" "modulus" "mplier"]
     
 #Data Output - Inserts here the real names of Data-Outputs like in your code
     #set output_names [list "product"]
@@ -155,21 +155,21 @@
     # Generate signal-specific properties
     foreach signal_name $input_names {
         puts $fd "  // Property for $module_name.$signal_name"
-        puts $fd "  property wcet_in_${signal_name}_p(a, ts);"
+        puts $fd "  property ${signal_name}_p(a, ts);"
         puts $fd "    t ##0 ($module_name.$read_in == 1'b1) and"
         puts $fd "    t ##0 ($module_name.$ready_out == 1'b1) and"
 	if { $granularity != 0} {
         puts $fd "    t ##0 ($module_name.$signal_name\[$mpwid_name-1:$mpwid_name-$granularity\] == INPUT_A\[a\]) and"
 	}
-        puts $fd "    t ##1 ($module_name.$read_in == 1'b0) \[*ts+1\] and"
-        puts $fd "    t ##1 ($module_name.$ready_out == 1'b0) \[*ts\]"
+        puts $fd "    t ##1 ($module_name.$read_in == 1'b0) \[*ts+1\]"
         puts $fd "  implies "
+        puts $fd "    t ##(ts) ($module_name.$ready_out == 1'b0) and"
         puts $fd "    t ##(ts+1) ($module_name.$ready_out == 1'b1);"
         puts $fd "  endproperty"
         puts $fd ""
         puts $fd "  generate"
         puts $fd "      for (a = 0; a < \$size(INPUT_A); a++) begin: $signal_name"
-        puts $fd "         for (ts = T_BCET_IN-1; ts < T_WCET_IN; ts++) begin: $signal_name"
+        puts $fd "         for (ts = T_BCET_IN; ts < T_WCET_IN; ts++) begin: $signal_name"
         
         if {[llength $filtered_interrupts] == 0} {
             if { $reset_type == 1} {
@@ -184,8 +184,7 @@
                 set interrupt_condition "[join $filtered_interrupts " | "] | !rst_i"
             }
     }
-        puts $fd "            wcet_in_${signal_name}_p_a: assert property (disable iff ($interrupt_condition) wcet_in_${signal_name}_p (a,ts));"
-        #puts $fd "            wcet_in_${signal_name}_p_a: assert property (disable iff (rst_i) wcet_in_${signal_name}_p (a,ts));"
+        puts $fd "            ${signal_name}_p_a: assert property (disable iff ($interrupt_condition) ${signal_name}_p (a,ts));"
         puts $fd "         end"
         puts $fd "      end"
         puts $fd "  endgenerate"
@@ -374,6 +373,8 @@ while {$min_bcet <= $max_bcet} {
 # Loop input dependend WCET - Proof transition from hold to not hold #
 ######################################################################
 
+# Witness first pass is BCET
+# Witness last pass is WCET
 
 # Generate SVA-formatted parameter lists for INPUT_A and INPUT_B arrays
 #set sva_values_list "'{"
@@ -392,8 +393,6 @@ set input_values {}
 for {set i 0} {$i < (1 << $granularity)} {incr i} {
     lappend input_values $i  ;# Store decimal values instead of binary strings
 }
-# Format list as comma-separated values
-#set input_values [join $input_list ", "]
 
 
 #exec sed -i "s/localparam WIDTH_IN = .*/localparam WIDTH_IN = $total_values;/"  $sva_file_path
@@ -401,37 +400,98 @@ exec sed -i "s/localparam T_BCET_IN = .*/localparam T_BCET_IN = $T_BCET_EXE;/"  
 exec sed -i "s/localparam T_WCET_IN = .*/localparam T_WCET_IN = [expr {$T_WCET_EXE+1}];/"  $sva_file_path
 
 after 1000
-check_assertion -force [get_assertions]
+check  -all -force [get_checks]
+#check_assertion -force [get_assertions]
 
 set te $T_WCET_EXE
 set ts $T_BCET_EXE
+array set data {}
+set counter_input 0
+
+
 
 foreach filename $input_names {
     set output_file [open "[file join $script_path "out_input_$filename.txt"]" w]
-
+    set reachability 0
     #Read all assertions results
     for {set i 0} {$i < [expr {1 << $granularity}]} {incr i} {
         for {set t $ts} {$t <= $te} {incr t} {
             
-            #set query [get_check_info -status {checker_bind.genblk1[${i}].genblk1[${j}].genblk1[${t}].wcet_in_2_p_a}]
-            set query "checker_bind.$filename\[$i\].$filename\[$t\].wcet_in_$filename\_p_a"
-            set query_results [get_check_info -status $query]
+            set query "checker_bind.$filename\[$i\].$filename\[$t\].$filename\_p_a"
+            set query_results [get_check_info -status -witness $query]
+
+            #set query_results [get_check_info -status $query]
 
             # Get actual values from the list
             set a_val [lindex $input_values $i]
 
             # Write to file only if status is "hold"
-            if {[string match "hold" $query_results]} {
+            
+            if {[regexp {pass} $query_results]} {
                 #puts $output_file "$a_val, $t, $query_results"
                 puts $output_file "$a_val, $t"
                 flush $output_file
+                set data($counter_input,$a_val,$t) 1;#pass
+            } else {
+                set data($counter_input,$a_val,$t) 0; #unreachable
+            }
+            
+            if {[regexp {unreachable} $query_results] && $reachability == 0} {
+                set reachability 1
             }
         }
     }
+
+    if {$reachability == 1} {
+
+        # Process results for this input
+        puts "Processing results for $filename"
+        set smallest_t [expr {$te + 1}] ;# Initialize to max possible value
+        set highest_t 0
+        set sum_t 0
+        set count_t 0
+        set count_array 0
+        array set data_min {}
+        array set data_max {}
+        array set data_mean {}
+        array set data_calc {}
+
+        # Collect data for all combinations of a_val and t
+        for {set a_val 0} {$a_val < [expr {1 << $granularity}]} {incr a_val} {
+            set min_t_for_a [expr {$te + 1}]
+            set max_t_for_a 0
+            set sum_t_for_a 0
+            set count_t_for_a 0
+            
+            for {set t $ts} {$t <= $te} {incr t} {
+                if {[info exists data($counter_input,$a_val,$t)] && $data($counter_input,$a_val,$t) == 1} {
+                    if {$t < $min_t_for_a} {set min_t_for_a $t}
+                    if {$t > $max_t_for_a} {set max_t_for_a $t}
+                    set sum_t_for_a [expr {$sum_t_for_a + $t}]
+                    incr count_t_for_a
+                }
+            }
+            
+            # Output statistics for this a_val if we have any data
+            if {$count_t_for_a > 0} {
+                set mean_t_for_a [expr {double($sum_t_for_a) / $count_t_for_a}]
+                set data_min($count_array,$a_val) $min_t_for_a
+                set data_max($count_array,$a_val) $max_t_for_a
+                set data_mean($count_array,$a_val) $mean_t_for_a
+                puts "Input $filename, Value $a_val: Min t=$min_t_for_a, Max t=$max_t_for_a, Mean t=$mean_t_for_a"
+            }
+
+            incr count_array
+        }
+
+    }
+
+    incr counter_input
+
+
     puts $output_file
     close $output_file
 }
-
 
 ###############################
 # Print Configuration Summary #
@@ -447,28 +507,15 @@ puts "Input names:$input_names"
 puts "BCET is $T_BCET_EXE Cycles"
 puts "WCET is $T_WCET_EXE Cycles"
 
+set end_time [clock milliseconds]
+set elapsed_ms [expr {$end_time - $start_time}]
 
+set minutes [expr {$elapsed_ms / 60000}]
+set seconds [expr {($elapsed_ms % 60000) / 1000}]
+
+puts "Laufzeit: $minutes:$seconds"
 
 
 
 # Example usage:
 #generate_wcet_signal_properties "property_checker_generated.sva" $module_name $input_names
-
- // Property for modmult.mplier
-  property wcet_in_mplier_p(a, ts);
-    t ##0 (modmult.ds == 1'b1) and
-    t ##0 (modmult.ready == 1'b1) and
-    t ##0 (modmult.mplier[MPWID-1:MPWID-3] == INPUT_A[a]) and
-    t ##1 (modmult.ds == 1'b0) [*ts+1] and
-    t ##1 (modmult.ready == 1'b0) [*ts]
-  implies 
-    t ##(ts+1) (modmult.ready == 1'b1);
-  endproperty
-
-  generate
-      for (a = 0; a < $size(INPUT_A); a++) begin: mplier
-         for (ts = T_BCET_IN-1; ts < T_WCET_IN; ts++) begin: mplier
-            wcet_in_mplier_p_a: assert property (disable iff (rst_i) wcet_in_mplier_p (a,ts));
-         end
-      end
-  endgenerate
