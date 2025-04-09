@@ -10,11 +10,17 @@ set start_time [clock milliseconds]
 #Module Name - Inserts here the real name of the module like in your code
     set module_name "modmult"
 
+#Set the name and maximum of width of the inputs
+    set mpwid_name "MPWID"
+    set mpwid 8        
+
 #Data Input - Inserts here the real names of Data-Inputs like in your code
     set input_names [list "mpand" "modulus" "mplier"]
+    set input_length [list "$mpwid_name-1" "$mpwid_name-1" "$mpwid_name-1"]; #number of inputs
     
 #Data Output - Inserts here the real names of Data-Outputs like in your code
-    #set output_names [list "product"]
+    set output_names [list "product"]
+    set output_length [list "$mpwid_name-1"]; #number of outputs
 
 #Handshake Signals - Inserts here the real names of Handshake Signals like in your code
     set read_in "ds" ; #start
@@ -27,9 +33,7 @@ set start_time [clock milliseconds]
     set reset_name "reset"
     set reset_type 1 ; #active_low = 1 or active_high = 0
 
-#Set the name and maximum of width of the inputs
-    set mpwid_name "MPWID"
-    set mpwid 8    
+
 
 #Set Granularity - Inserts here the real value of the granularity max. width
     set granularity 3
@@ -202,6 +206,93 @@ set start_time [clock milliseconds]
     puts "Output file: $output_file"
 
     after 1000
+}
+
+
+####################
+# Generate Wrapper #
+####################
+
+# Generate SystemVerilog wrapper for modmult
+proc generate_wrapper { script_path module_name input_names input_length output_names output_length read_in ready_out clock_name reset_name mpwid_name mpwid reset_type data_min data_max data_mean} { 
+    set wrapper_file "$module_name\_wrapper.sv"
+    set fp [open $script_path/$wrapper_file "w"]
+
+    puts $fp "// Auto-generated SystemVerilog Wrapper for $module_name"
+    puts $fp "`timescale 1ns/1ps\n"
+    puts $fp "module ${module_name}_wrapper #\("
+    puts $fp "    parameter int $mpwid_name = $mpwid"
+    puts $fp "\) \("
+
+    # Clock & Reset
+    puts $fp "    input logic $clock_name,"
+    puts $fp "    input logic $reset_name,"
+
+    # Handshake
+    puts $fp "    input logic $read_in,"
+    puts $fp "    output logic $ready_out,"
+
+    # Inputs
+    foreach in $input_names len $input_length {
+        puts $fp "    input logic \[$len:0\] $in,"
+    }
+
+    foreach in $input_names len $input_length {
+        puts $fp "    input logic $in\_label,"
+    }
+
+    # Outputs
+    set last_output_index [expr {[llength $output_names] - 1}]
+    foreach out $output_names len $output_length {
+        puts $fp "    output logic \[$len:0\] $out,"
+    }
+
+    set last_output_index [expr {[llength $output_names] - 1}]
+    foreach out $output_names len $output_length {
+        set suffix [expr {0 == $last_output_index ? "" : ","}]
+        puts $fp "    output logic $out\_label $suffix"
+    }
+
+    puts $fp "\);\n"
+
+    # Reset polarity handling
+    set rst_cond ($reset_name)
+    if { $reset_type == 1 } {
+        set rst_cond "!$reset_name"
+    }
+
+    # Module instantiation
+    puts $fp "  // Instantiate the DUT"
+    puts $fp "  $module_name #\("
+    puts $fp "    .$mpwid_name\($mpwid_name\)"
+    puts $fp "  \) dut \("
+    puts $fp "    .$clock_name\($clock_name\),"
+    puts $fp "    .$reset_name\($reset_name\),"
+    puts $fp "    .$read_in\($read_in\),"
+    puts $fp "    .$ready_out\($ready_out\),"
+
+    # Connect inputs
+    foreach in $input_names {
+        puts $fp "    .$in\($in\),"
+    }
+
+    # Connect outputs
+    set last_output_index [expr {[llength $output_names] - 1}]
+    foreach out $output_names  {
+        set suffix [expr {0 == $last_output_index ? "" : ","}]
+        puts $fp "    .$out\($out\)$suffix"
+    }
+
+    puts $fp "  \);\n"
+
+
+
+    # End module
+    puts $fp "endmodule"
+
+    close $fp
+
+    puts "Wrapper generated successfully in $wrapper_file"
 }
 
 
@@ -407,6 +498,8 @@ set te $T_WCET_EXE
 set ts $T_BCET_EXE
 array set data {}
 set counter_input 0
+set count_array 0
+array set secure_data_input {}
 
 
 
@@ -450,11 +543,11 @@ foreach filename $input_names {
         set highest_t 0
         set sum_t 0
         set count_t 0
-        set count_array 0
+
         array set data_min {}
         array set data_max {}
         array set data_mean {}
-        array set data_calc {}
+
 
         # Collect data for all combinations of a_val and t
         for {set a_val 0} {$a_val < [expr {1 << $granularity}]} {incr a_val} {
@@ -475,23 +568,192 @@ foreach filename $input_names {
             # Output statistics for this a_val if we have any data
             if {$count_t_for_a > 0} {
                 set mean_t_for_a [expr {double($sum_t_for_a) / $count_t_for_a}]
+                set a_val_bin [format "%03b" $a_val]
                 set data_min($count_array,$a_val) $min_t_for_a
                 set data_max($count_array,$a_val) $max_t_for_a
                 set data_mean($count_array,$a_val) $mean_t_for_a
-                puts "Input $filename, Value $a_val: Min t=$min_t_for_a, Max t=$max_t_for_a, Mean t=$mean_t_for_a"
+                puts "Input $filename = $count_array, Value $a_val_bin: Min t=$min_t_for_a, Max t=$max_t_for_a, Mean t=$mean_t_for_a"
             }
-
-            incr count_array
         }
-
+        
+        set secure_data_input($counter_input) 1
+    } else {
+        set secure_data_input($counter_input) 0
     }
 
+    incr count_array
     incr counter_input
-
 
     puts $output_file
     close $output_file
 }
+
+
+##################################
+# Generate SystemVerilog wrapper #
+##################################
+
+
+# Generate SystemVerilog wrapper for modmult
+
+set wrapper_file "$module_name\_wrapper.sv"
+set fp [open $script_path/$wrapper_file "w"]
+
+puts $fp "// Auto-generated SystemVerilog Wrapper for $module_name"
+puts $fp "`timescale 1ns/1ps\n"
+puts $fp "module ${module_name}_wrapper #\("
+puts $fp "    parameter int $mpwid_name = $mpwid"
+puts $fp "\) \("
+
+# Clock & Reset
+puts $fp "    input  logic $clock_name,"
+puts $fp "    input  logic $reset_name,"
+
+# Handshake
+puts $fp "    input  logic $read_in,"
+puts $fp "    output logic $ready_out,"
+
+# Inputs
+foreach in $input_names len $input_length {
+    puts $fp "    input  logic \[$len:0\] $in,"
+}
+
+foreach in $input_names len $input_length {
+    puts $fp "    input  logic $in\_label,"
+}
+
+# Outputs
+set last_output_index [expr {[llength $output_names] - 1}]
+foreach out $output_names len $output_length {
+    puts $fp "    output logic \[$len:0\] $out,"
+}
+
+set last_output_index [expr {[llength $output_names] - 1}]
+foreach out $output_names len $output_length {
+    set suffix [expr {0 == $last_output_index ? "" : ","}]
+    puts $fp "    output logic $out\_label $suffix"
+}
+
+puts $fp "\);\n"
+
+puts $fp "  // Internal signals"
+
+foreach out $output_names len $output_length {
+    puts $fp "  logic \[$len:0\] ${out}_internal,"
+    puts $fp "  logic ${out}_label_internal;"
+}
+
+puts $fp "  logic \[$mpwid_name-1:0\] product_internal;"
+puts $fp "  logic ready_internal;"
+puts $fp "  logic running;"
+puts $fp "  logic \[$mpwid_name-1:0\] timer = 0;\n"
+
+# Reset polarity handling
+set rst_cond ($reset_name)
+if { $reset_type == 1 } {
+    set rst_cond "!$reset_name"
+}
+
+# Module instantiation
+puts $fp "  // Instantiate the DUT"
+puts $fp "  $module_name #\("
+puts $fp "    .$mpwid_name\($mpwid_name\)"
+puts $fp "  \) dut \("
+puts $fp "    .$clock_name\($clock_name\),"
+puts $fp "    .$reset_name\($reset_name\),"
+puts $fp "    .$read_in\(${read_in}_internal\),"
+puts $fp "    .$ready_out\(${ready_out}_internal\),"
+
+# Connect inputs
+foreach in $input_names {
+    puts $fp "    .$in\(${in}\),"
+}
+
+# Connect outputs
+set last_output_index [expr {[llength $output_names] - 1}]
+foreach out $output_names  {
+    set suffix [expr {0 == $last_output_index ? "" : ","}]
+    puts $fp "    .$out\($out\)$suffix"
+}
+
+puts $fp "  \);\n"
+
+puts $fp "  always_ff @(posedge clk or posedge reset) begin"
+puts $fp "    if ($rst_cond) begin"
+puts $fp "      running <= 0;"
+puts $fp "      $ready_out <= 0;"
+# Outputs
+foreach out $output_names len $output_length {
+    puts $fp "      $out <= 0;"
+}
+foreach out $output_names len $output_length {
+    puts $fp "      $out\_label <= 0;"
+}
+puts $fp "      timer = $T_WCET_EXE;"
+puts $fp "    end else begin"
+puts $fp "      if ($read_in && !running) begin"
+
+puts $fp "        timer = 0;"
+
+for {set i 0} {$i < [llength $input_names]} {incr i} {
+    puts $fp "        t_array\[$i\] = 0;"
+}
+
+for {set i 0} {$i < [llength $input_names]} {incr i} {
+    if { $secure_data_input($i) == 1} {
+        foreach out $output_names  {
+            puts $fp "        ${out}_label_internal <= 1;"
+        }
+        puts $fp "\n        // MUX for [lindex $input_names $i]"
+        puts $fp "        case ([lindex $input_names $i]\[$mpwid_name-1:$mpwid_name-$granularity\])"
+        for {set j 0} {$j < (1 << $granularity)} {incr j} {
+            set a_val [lindex $input_values $j]
+            set a_val_bin [format "%0${granularity}b" $a_val]
+            puts $fp "          $granularity'b$a_val_bin: t_array\[$i\] = $data_max($i,$j);"
+        }
+        puts $fp "          default: t_array\[$i\] = $T_WCET_EXE;"
+        puts $fp "        endcase\n"
+    }
+}
+
+
+puts $fp "        for (int i = 0; i < [llength $input_names]; i++) begin"
+puts $fp "          if (t_array\[i\] > timer)"
+puts $fp "             timer = t_array\[i\];"
+puts $fp "        end\n"
+
+puts $fp "        running <= 1;"
+puts $fp "        $ready_out <= 0;"
+puts $fp "      end else if (running) begin"
+puts $fp "        if (timer > 0) begin"
+puts $fp "          timer = timer - 1;"
+puts $fp "        end else begin"
+puts $fp "          $ready_out <= ${ready_out}_internal;"
+puts $fp "          running <= 0;"
+
+foreach out $output_names  {
+    puts $fp "          $out <= ${out}_internal;"    
+    puts $fp "          ${out}_label <= ${out}_label_internal;"
+}
+
+puts $fp "        end"
+puts $fp "      end else begin"
+puts $fp "        $ready_out <= 0;"
+puts $fp "      end"
+puts $fp "    end"
+puts $fp "  end\n"
+
+puts $fp "endmodule"
+
+close $fp
+
+puts "Wrapper generated successfully in $wrapper_file"
+
+
+
+
+
+
 
 ###############################
 # Print Configuration Summary #

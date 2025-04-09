@@ -234,4 +234,7 @@ ACHTUNG: sobald ein proof gefunden wurde wird abgebrochen. ich sollte aber alles
 
 12. Figure out Best Case and Worst Case, then build loop around MPAND and MODULUS
 
+13. Working Runtime Analysis. Can work with most significant bits, depending on granularity. Only fix values, no deep learning.
+
+
 
