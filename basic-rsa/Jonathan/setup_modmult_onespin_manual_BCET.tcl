@@ -4,8 +4,9 @@ set start_time [clock milliseconds]
 # Manual Input / Output Declarations #
 ######################################
 
-#Fill in the following variables with the real names of the module, inputs, outputs, and control signals from your design.
-
+#Set script path
+    set script_path [file dirname [file normalize [info script]]]
+    #set script_path "/import/lab/users"
 
 #Module Name - Inserts here the real name of the module like in your code
     set module_name "modmult"
@@ -71,7 +72,7 @@ set start_time [clock milliseconds]
     puts $fd "module property_checker"
     puts $fd "  // Adjust this parameter before elaboration with"
     puts $fd "  // set_elaborate_option -golden -vhdl_generic {$mpwid_name = 4}"
-    puts $fd "  #(parameter $mpwid_name = 4)"
+    puts $fd "  #(parameter $mpwid_name = $mpwid )"
     puts $fd "  ("
     puts $fd "  input clk_i,"
     puts $fd "  input rst_i"
@@ -305,8 +306,6 @@ proc generate_wrapper { script_path module_name input_names input_length output_
 
     source -signed "/import/usr/onespin/latest/etc/startup/onespin_startup.tcl.obf"
     restart
-
-    set script_path [file dirname [file normalize [info script]]]
   
     if  {$file_type == "vhd" || $file_type == "vhdl"} {
             read_vhdl -golden -pragma_ignore {} -version 2008 $script_path/$file_name.$file_type

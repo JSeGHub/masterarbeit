@@ -1,0 +1,89 @@
+// @lang=sva @ts=8test
+
+module property_checker
+  #(parameter WIDTH = 8 )
+  (
+  input clk_i,
+  input rst_i
+  );
+
+  default clocking default_clk @(posedge clk_i); endclocking
+
+  `include "tidal.sv"
+
+`begin_tda(ops)
+
+  localparam T_WCET = 9;
+  localparam T_BCET = 1;
+
+  property bcet_p;
+    t ##0 (serdiv.in_rdy_o == 1'b1) and
+    t ##0 (serdiv.in_vld_i == 1'b0) and
+    t ##1 (serdiv.in_vld_i == 1'b1) and
+    t ##2 (serdiv.in_vld_i == 1'b0) [*T_BCET+1]
+  implies
+    t ##(T_BCET) (serdiv.out_vld_o == 1'b0);
+  endproperty
+  bcet_p_a: assert property (disable iff (serdiv.flush_i | !rst_i) bcet_p );
+
+  property wcet_p;
+    t ##0 (serdiv.in_rdy_o == 1'b1) and
+    t ##0 (serdiv.in_vld_i == 1'b0) and
+    t ##1 (serdiv.in_vld_i == 1'b1) and
+    t ##2 (serdiv.in_vld_i == 1'b0) [*T_WCET+1] and
+    t ##1 (serdiv.out_vld_o == 1'b0) [*T_WCET]
+  implies    
+    t ##(T_WCET+1) (serdiv.out_vld_o == 1'b1);
+  endproperty
+  wcet_p_a: assert property (disable iff (serdiv.flush_i | !rst_i) wcet_p );
+
+`end_tda
+
+
+  localparam int INPUT_A[8] = '{0, 1, 2, 3, 4, 5, 6, 7};
+  localparam T_WCET_IN = 10;
+  localparam T_BCET_IN = 1;
+
+ genvar a,ts;
+  // Property for serdiv.op_a_i
+  property op_a_i_p(a, ts);
+    t ##1 (serdiv.op_a_i[WIDTH-1:WIDTH-3] == INPUT_A[a]) and
+    t ##0 (serdiv.in_rdy_o == 1'b1) and
+    t ##0 (serdiv.in_vld_i == 1'b0) and
+    t ##1 (serdiv.in_vld_i == 1'b1) and
+    t ##2 (serdiv.in_vld_i == 1'b0) [*ts+1]
+  implies 
+    t ##(ts) (serdiv.out_vld_o == 1'b0) and
+    t ##(ts+1) (serdiv.out_vld_o == 1'b1);
+  endproperty
+
+  generate
+      for (a = 0; a < $size(INPUT_A); a++) begin: op_a_i
+         for (ts = T_BCET_IN; ts < T_WCET_IN; ts++) begin: op_a_i
+            op_a_i_p_a: assert property (disable iff (serdiv.flush_i | !rst_i) op_a_i_p (a,ts));
+         end
+      end
+  endgenerate
+
+  // Property for serdiv.op_b_i
+  property op_b_i_p(a, ts);
+    t ##1 (serdiv.op_b_i[WIDTH-1:WIDTH-3] == INPUT_A[a]) and
+    t ##0 (serdiv.in_rdy_o == 1'b1) and
+    t ##0 (serdiv.in_vld_i == 1'b0) and
+    t ##1 (serdiv.in_vld_i == 1'b1) and
+    t ##2 (serdiv.in_vld_i == 1'b0) [*ts+1]
+  implies 
+    t ##(ts) (serdiv.out_vld_o == 1'b0) and
+    t ##(ts+1) (serdiv.out_vld_o == 1'b1);
+  endproperty
+
+  generate
+      for (a = 0; a < $size(INPUT_A); a++) begin: op_b_i
+         for (ts = T_BCET_IN; ts < T_WCET_IN; ts++) begin: op_b_i
+            op_b_i_p_a: assert property (disable iff (serdiv.flush_i | !rst_i) op_b_i_p (a,ts));
+         end
+      end
+  endgenerate
+
+endmodule
+bind serdiv property_checker #(.WIDTH(WIDTH)) checker_bind(.clk_i(clk_i), .rst_i(rst_ni));

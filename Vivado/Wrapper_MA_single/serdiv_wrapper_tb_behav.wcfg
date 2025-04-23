@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="serdiv_wrapper_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="ariane_dm_pkg" />
+            <top_module name="ariane_pkg" />
+            <top_module name="glbl" />
+            <top_module name="riscv" />
+            <top_module name="rvfi_pkg" />
+            <top_module name="serdiv_wrapper_tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="1750001fs"></ZoomEndTime>
+      <Cursor1Time time="1710000fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="180"></NameColumnWidth>
+      <ValueColumnWidth column_width="82"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="33" />
+   <wvobject type="logic" fp_name="/serdiv_wrapper_tb/clk_i">
+      <obj_property name="ElementShortName">clk_i</obj_property>
+      <obj_property name="ObjectShortName">clk_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/serdiv_wrapper_tb/rst_ni">
+      <obj_property name="ElementShortName">rst_ni</obj_property>
+      <obj_property name="ObjectShortName">rst_ni</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/serdiv_wrapper_tb/id_i">
+      <obj_property name="ElementShortName">id_i[2:0]</obj_property>
+      <obj_property name="ObjectShortName">id_i[2:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/serdiv_wrapper_tb/op_a_i">
+      <obj_property name="ElementShortName">op_a_i[63:0]</obj_property>
+      <obj_property name="ObjectShortName">op_a_i[63:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/serdiv_wrapper_tb/op_b_i">
+      <obj_property name="ElementShortName">op_b_i[63:0]</obj_property>
+      <obj_property name="ObjectShortName">op_b_i[63:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/serdiv_wrapper_tb/opcode_i">
+      <obj_property name="ElementShortName">opcode_i[1:0]</obj_property>
+      <obj_property name="ObjectShortName">opcode_i[1:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/serdiv_wrapper_tb/in_vld_i">
+      <obj_property name="ElementShortName">in_vld_i</obj_property>
+      <obj_property name="ObjectShortName">in_vld_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/serdiv_wrapper_tb/in_rdy_o">
+      <obj_property name="ElementShortName">in_rdy_o</obj_property>
+      <obj_property name="ObjectShortName">in_rdy_o</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/serdiv_wrapper_tb/flush_i">
+      <obj_property name="ElementShortName">flush_i</obj_property>
+      <obj_property name="ObjectShortName">flush_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/serdiv_wrapper_tb/out_vld_o">
+      <obj_property name="ElementShortName">out_vld_o</obj_property>
+      <obj_property name="ObjectShortName">out_vld_o</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/serdiv_wrapper_tb/out_rdy_i">
+      <obj_property name="ElementShortName">out_rdy_i</obj_property>
+      <obj_property name="ObjectShortName">out_rdy_i</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/serdiv_wrapper_tb/res_o">
+      <obj_property name="ElementShortName">res_o[63:0]</obj_property>
+      <obj_property name="ObjectShortName">res_o[63:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/serdiv_wrapper_tb/id_o">
+      <obj_property name="ElementShortName">id_o[2:0]</obj_property>
+      <obj_property name="ObjectShortName">id_o[2:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/serdiv_wrapper_tb/op_a_i_label">
+      <obj_property name="ElementShortName">op_a_i_label</obj_property>
+      <obj_property name="ObjectShortName">op_a_i_label</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/serdiv_wrapper_tb/op_b_i_label">
+      <obj_property name="ElementShortName">op_b_i_label</obj_property>
+      <obj_property name="ObjectShortName">op_b_i_label</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/serdiv_wrapper_tb/res_o_label">
+      <obj_property name="ElementShortName">res_o_label</obj_property>
+      <obj_property name="ObjectShortName">res_o_label</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/serdiv_wrapper_tb/N">
+      <obj_property name="ElementShortName">N[31:0]</obj_property>
+      <obj_property name="ObjectShortName">N[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/serdiv_wrapper_tb/seed">
+      <obj_property name="ElementShortName">seed[31:0]</obj_property>
+      <obj_property name="ObjectShortName">seed[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/serdiv_wrapper_tb/mean">
+      <obj_property name="ElementShortName">mean[31:0]</obj_property>
+      <obj_property name="ObjectShortName">mean[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/serdiv_wrapper_tb/std_deviation">
+      <obj_property name="ElementShortName">std_deviation[31:0]</obj_property>
+      <obj_property name="ObjectShortName">std_deviation[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/serdiv_wrapper_tb/var_a">
+      <obj_property name="ElementShortName">var_a[31:0]</obj_property>
+      <obj_property name="ObjectShortName">var_a[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/serdiv_wrapper_tb/var_b">
+      <obj_property name="ElementShortName">var_b[31:0]</obj_property>
+      <obj_property name="ObjectShortName">var_b[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/serdiv_wrapper_tb/WIDTH">
+      <obj_property name="ElementShortName">WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WIDTH[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/serdiv_wrapper_tb/dut/res_o_label_q">
+      <obj_property name="ElementShortName">res_o_label_q</obj_property>
+      <obj_property name="ObjectShortName">res_o_label_q</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/serdiv_wrapper_tb/dut/in_vld_i_q">
+      <obj_property name="ElementShortName">in_vld_i_q</obj_property>
+      <obj_property name="ObjectShortName">in_vld_i_q</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/serdiv_wrapper_tb/dut/out_rdy_i_q">
+      <obj_property name="ElementShortName">out_rdy_i_q</obj_property>
+      <obj_property name="ObjectShortName">out_rdy_i_q</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/serdiv_wrapper_tb/dut/out_vld_o_q">
+      <obj_property name="ElementShortName">out_vld_o_q</obj_property>
+      <obj_property name="ObjectShortName">out_vld_o_q</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/serdiv_wrapper_tb/dut/in_rdy_o_q">
+      <obj_property name="ElementShortName">in_rdy_o_q</obj_property>
+      <obj_property name="ObjectShortName">in_rdy_o_q</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/serdiv_wrapper_tb/dut/timer_q">
+      <obj_property name="ElementShortName">timer_q[63:0]</obj_property>
+      <obj_property name="ObjectShortName">timer_q[63:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/serdiv_wrapper_tb/dut/res_o_q">
+      <obj_property name="ElementShortName">res_o_q[63:0]</obj_property>
+      <obj_property name="ObjectShortName">res_o_q[63:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/serdiv_wrapper_tb/dut/res_o_d">
+      <obj_property name="ElementShortName">res_o_d[63:0]</obj_property>
+      <obj_property name="ObjectShortName">res_o_d[63:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/serdiv_wrapper_tb/dut/state_q">
+      <obj_property name="ElementShortName">state_q[1:0]</obj_property>
+      <obj_property name="ObjectShortName">state_q[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/serdiv_wrapper_tb/dut/state_d">
+      <obj_property name="ElementShortName">state_d[1:0]</obj_property>
+      <obj_property name="ObjectShortName">state_d[1:0]</obj_property>
+   </wvobject>
+</wave_config>

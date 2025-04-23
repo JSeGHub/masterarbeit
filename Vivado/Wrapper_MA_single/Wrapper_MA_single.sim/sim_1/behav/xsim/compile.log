@@ -1,0 +1,14 @@
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/import/lab/users/seckinger/Master-Thesis/masterarbeit/cva6-serdiv/common/ariane_dm_pkg.sv" into library xil_defaultlib
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/import/lab/users/seckinger/Master-Thesis/masterarbeit/cva6-serdiv/common/cv64a6_imafdc_sv39_config_pkg.sv" into library xil_defaultlib
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/import/lab/users/seckinger/Master-Thesis/masterarbeit/cva6-serdiv/common/riscv_pkg.sv" into library xil_defaultlib
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/import/lab/users/seckinger/Master-Thesis/masterarbeit/cva6-serdiv/common/rvfi_pkg.sv" into library xil_defaultlib
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/import/lab/users/seckinger/Master-Thesis/masterarbeit/cva6-serdiv/common/ariane_pkg.sv" into library xil_defaultlib
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/import/lab/users/seckinger/Master-Thesis/masterarbeit/cva6-serdiv/common/cf_math_pkg.sv" into library xil_defaultlib
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/import/lab/users/seckinger/Master-Thesis/masterarbeit/cva6-serdiv/common/lzc.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module lzc
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/import/lab/users/seckinger/Master-Thesis/masterarbeit/cva6-serdiv/optimized/serdiv.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module serdiv
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/import/lab/users/seckinger/Master-Thesis/masterarbeit/cva6-serdiv/serdiv_wrapper.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module serdiv_wrapper
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/import/lab/users/seckinger/Master-Thesis/masterarbeit/cva6-serdiv/wrapper_serdiv_tb.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module serdiv_wrapper_tb
