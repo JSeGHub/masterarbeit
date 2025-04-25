@@ -353,14 +353,16 @@ if { $input_operation_names != "" && $operation_flag == 1 } {
         
             for {set i 0} {$i < [llength $input_data_names]} {incr i} {
                 if { $secure_data_input($i,$l) == 1} {
-                    puts $fp "            case ([lindex $input_data_names $i]\[$width_name-1:$width_name-$granularity\])"
+                    puts $fp "            if ([lindex $input_data_names $i]\_label == 0) begin"
+                    puts $fp "              case ([lindex $input_data_names $i]\[$width_name-1:$width_name-$granularity\])"
                     for {set j 0} {$j < (1 << $granularity)} {incr j} {
                         set a_val [lindex $input_values $j]
                         set a_val_bin [format "%0${granularity}b" $a_val]
-                        puts $fp "                  $granularity'b$a_val_bin: t_array\[$i\] = $data_max($i,$j,$l);"
+                        puts $fp "                    $granularity'b$a_val_bin: t_array\[$i\] = $data_max($i,$j,$l);"
                     }
-                    puts $fp "              default: t_array\[$i\] = $T_WCET_EXE;"
-                    puts $fp "            endcase\n"
+                    puts $fp "                default: t_array\[$i\] = $T_WCET_EXE;"
+                    puts $fp "              endcase"
+                    puts $fp "            end else t_array\[$i\] = 0;\n"
                 } else {
                     puts $fp "            case ([lindex $input_data_names $i]\[$width_name-1:$width_name-$granularity\])"
                     puts $fp "                  default: t_array\[$i\] = 0;"
@@ -376,6 +378,7 @@ if { $input_operation_names != "" && $operation_flag == 1 } {
 } else {
     for {set i 0} {$i < [llength $input_data_names]} {incr i} {
         if { $secure_data_input($i,0) == 1} {
+            puts $fp "      if ([lindex $input_data_names $i]\_label == 0) begin"
             puts $fp "        case ([lindex $input_data_names $i]\[$width_name-1:$width_name-$granularity\])"
             for {set j 0} {$j < (1 << $granularity)} {incr j} {
                 set a_val [lindex $input_values $j]
@@ -383,38 +386,14 @@ if { $input_operation_names != "" && $operation_flag == 1 } {
                 puts $fp "          $granularity'b$a_val_bin: t_array\[$i\] = $data_max($i,$j,0);"
             }
             puts $fp "          default: t_array\[$i\] = $T_WCET_EXE;"
-            puts $fp "        endcase\n"
+            puts $fp "        endcase"
+            puts $fp "      end else t_array\[$i\] = 0;\n"
         }
     }
-
 }
 
 
-    set count_in 0
-foreach in $input_data_names {
-    puts $fp "    if ([lindex $input_data_names $count_in]\_label == 0) t_array\[$count_in\] = 0;"
-    incr count_in
-}
-
-
-
-
-
-if {0} {
-set secure_found 0
-for {set i 0} {$i < [llength $input_data_names]} {incr i} {
-    if {$secure_data_input($i) == 1 && $secure_found == 0} {
-        puts $fp "        ${out}_q = 1;"
-        set secure_found 1
-    }
-}
-
-if {!$secure_found} {
-    puts $fp "        ${out}_q = 0;"
-}
-}
-
-puts $fp "\n end"
+puts $fp "end"
 puts $fp "\n"
 
 
@@ -449,9 +428,28 @@ puts $fp "      IDLE: begin"
 puts $fp "        if ($valid_in\_q) begin" ;#Reicht $valid_in Abfrage?
 puts $fp "          state_d = RUN;"
 puts $fp "          timer_d = 0;"
-puts $fp "          for (int i = 0; i < [llength $input_data_names]; i++) begin"
-puts $fp "            if (t_array\[i\] > timer_d) timer_d = t_array\[i\];"
-puts $fp "          end"
+
+set last_in [expr {[llength $input_data_names] - 1}]
+puts -nonewline $fp "          if ("
+for {set i 0} {$i < [llength $input_data_names]} {incr i} {
+    set connector [expr {$i == $last_in ? "" : " && "}]
+    puts -nonewline $fp "([lindex $input_data_names $i]\_label == 1)$connector"
+}
+puts $fp ") begin"
+puts $fp "            timer_d = $T_WCET_EXE;"
+puts -nonewline $fp "          end else if ("
+for {set i 0} {$i < [llength $input_data_names]} {incr i} {
+    set connector [expr {$i == $last_in ? "" : " && "}]
+    puts -nonewline $fp "([lindex $input_data_names $i]\_label == 0)$connector"
+}
+puts $fp ") begin"
+puts $fp "            timer_d = 0;"
+puts  $fp "          end else begin"
+
+puts $fp "            for (int i = 0; i < [llength $input_data_names]; i++) begin"
+puts $fp "              if (t_array\[i\] > timer_d) timer_d = t_array\[i\];"
+puts $fp "            end"
+puts $fp "        end"
 
 
 
@@ -468,7 +466,7 @@ set label_counter 0
 
 
 foreach out_data $output_data_names {
-    puts -nonewline $fp "          ${out_data}\_label\_d = "
+    puts -nonewline $fp "          ${out_data}\_label\_d ="
 
     for {set i 0} {$i < [llength $input_data_names]} {incr i} {
         if {$label_marker == 0} {

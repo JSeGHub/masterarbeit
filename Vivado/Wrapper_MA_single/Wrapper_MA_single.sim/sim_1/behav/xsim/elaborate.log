@@ -4,13 +4,13 @@ Running: /import/public/common/Xilinx/Vivado/2020.1/bin/unwrapped/lnx64.o/xelab 
 Using 8 slave threads.
 Starting static elaboration
 Pass Through NonSizing Optimizer
-WARNING: [VRFC 10-3823] variable 'in_rdy_o_q' might have multiple concurrent drivers [/import/lab/users/seckinger/Master-Thesis/masterarbeit/cva6-serdiv/serdiv_wrapper.sv:147]
+WARNING: [VRFC 10-3823] variable 'in_rdy_o_q' might have multiple concurrent drivers [/import/lab/users/seckinger/Master-Thesis/masterarbeit/cva6-serdiv/serdiv_wrapper.sv:154]
 Completed static elaboration
 Starting simulation data flow analysis
 WARNING: [XSIM 43-4100] "/import/lab/users/seckinger/Master-Thesis/masterarbeit/cva6-serdiv/wrapper_serdiv_tb.sv" Line 24. Module serdiv_wrapper_tb has a timescale but at least one module in design doesn't have timescale.
-WARNING: [XSIM 43-4100] "/import/lab/users/seckinger/Master-Thesis/masterarbeit/cva6-serdiv/serdiv_wrapper.sv" Line 4. Module serdiv_wrapper(WIDTH=64) has a timescale but at least one module in design doesn't have timescale.
+WARNING: [XSIM 43-4100] "/import/lab/users/seckinger/Master-Thesis/masterarbeit/cva6-serdiv/serdiv_wrapper.sv" Line 4. Module serdiv_wrapper has a timescale but at least one module in design doesn't have timescale.
 WARNING: [XSIM 43-4100] "/import/lab/users/seckinger/Master-Thesis/masterarbeit/cva6-serdiv/wrapper_serdiv_tb.sv" Line 24. Module serdiv_wrapper_tb has a timescale but at least one module in design doesn't have timescale.
-WARNING: [XSIM 43-4100] "/import/lab/users/seckinger/Master-Thesis/masterarbeit/cva6-serdiv/serdiv_wrapper.sv" Line 4. Module serdiv_wrapper(WIDTH=64) has a timescale but at least one module in design doesn't have timescale.
+WARNING: [XSIM 43-4100] "/import/lab/users/seckinger/Master-Thesis/masterarbeit/cva6-serdiv/serdiv_wrapper.sv" Line 4. Module serdiv_wrapper has a timescale but at least one module in design doesn't have timescale.
 WARNING: [XSIM 43-4100] "/import/lab/users/seckinger/Master-Thesis/masterarbeit/Vivado/Wrapper_MA_single/Wrapper_MA_single.sim/sim_1/behav/xsim/glbl.v" Line 6. Module glbl has a timescale but at least one module in design doesn't have timescale.
 WARNING: [XSIM 43-4100] "/import/lab/users/seckinger/Master-Thesis/masterarbeit/Vivado/Wrapper_MA_single/Wrapper_MA_single.sim/sim_1/behav/xsim/glbl.v" Line 6. Module glbl has a timescale but at least one module in design doesn't have timescale.
 Completed simulation data flow analysis
@@ -19,9 +19,9 @@ Compiling package xil_defaultlib.ariane_pkg
 Compiling package xil_defaultlib.riscv
 Compiling package xil_defaultlib.ariane_dm_pkg
 Compiling package xil_defaultlib.rvfi_pkg
-Compiling module xil_defaultlib.lzc(WIDTH=32'b01000000,MODE=1'b1...
-Compiling module xil_defaultlib.serdiv
-Compiling module xil_defaultlib.serdiv_wrapper(WIDTH=64)
+Compiling module xil_defaultlib.lzc(WIDTH=32'b01000,MODE=1'b1)
+Compiling module xil_defaultlib.serdiv(WIDTH=8)
+Compiling module xil_defaultlib.serdiv_wrapper
 Compiling module xil_defaultlib.serdiv_wrapper_tb
 Compiling module xil_defaultlib.glbl
 Built simulation snapshot serdiv_wrapper_tb_behav

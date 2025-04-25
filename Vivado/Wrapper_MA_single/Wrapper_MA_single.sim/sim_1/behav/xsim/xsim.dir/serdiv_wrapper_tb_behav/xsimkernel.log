@@ -1,7 +1,7 @@
-Running: xsim.dir/serdiv_wrapper_tb_behav/xsimk -simmode gui -wdb serdiv_wrapper_tb_behav.wdb -simrunnum 0 -socket 34285
+Running: xsim.dir/serdiv_wrapper_tb_behav/xsimk -simmode gui -wdb serdiv_wrapper_tb_behav.wdb -simrunnum 0 -socket 34343
 Design successfully loaded
-Design Loading Memory Usage: 33724 KB (Peak: 33880 KB)
-Design Loading CPU Usage: 30 ms
+Design Loading Memory Usage: 33336 KB (Peak: 33820 KB)
+Design Loading CPU Usage: 10 ms
 Simulation completed
-Simulation Memory Usage: 115720 KB (Peak: 172992 KB)
-Simulation CPU Usage: 30 ms
+Simulation Memory Usage: 115332 KB (Peak: 172604 KB)
+Simulation CPU Usage: 20 ms

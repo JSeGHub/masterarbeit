@@ -22,7 +22,7 @@
 `timescale 1 ns/1 ns
 
 module serdiv_wrapper_tb import ariane_pkg::*; #(
-  parameter WIDTH       = 64
+  parameter WIDTH       = 8
 ) (
   output logic                      clk_i,
   output logic                      rst_ni,
@@ -102,55 +102,38 @@ module serdiv_wrapper_tb import ariane_pkg::*; #(
     op_b_i       <=    '0;
     op_b_i_label <=  1'b1;
     
-    #40
+    #30
     
     rst_ni <= 1'b1;
     
-    op_a_i_label <=  1'b1;
-    op_b_i_label <=  1'b1;
-    op_a_i <= 100;
-    op_b_i <= 5;
-    #40
+    op_a_i_label <=  1'b0;
+    op_b_i_label <=  1'b0;
+    op_a_i <= 8'b00100000;
+    op_b_i <= 8'b00100000;
+#40
    wait(in_rdy_o == 1);
    
    op_a_i_label <=  1'b1;
    op_b_i_label <=  1'b0;
-   op_a_i <= 2;
-   op_b_i <= 10;
-    #40
+   op_a_i <= 8'b00100000;
+   op_b_i <= 8'b00100000;
+#40
    wait(in_rdy_o == 1);
    
    op_a_i_label <=  1'b0;
    op_b_i_label <=  1'b1;
-   op_a_i <= 2;
-   op_b_i <= 10;
-    #40
-   wait(in_rdy_o == 1);
-   
-   op_a_i_label <=  1'b0;
-   op_b_i_label <=  1'b0;
-   op_a_i <= 2;
-   op_b_i <= 10;
-    #40
+   op_a_i <= 8'b00100000;
+   op_b_i <= 8'b00100000;
+#40
    wait(in_rdy_o == 1);
    
    op_a_i_label <=  1'b1;
    op_b_i_label <=  1'b1;
-   op_a_i <= 2;
-   op_b_i <= 10;
-    #40
+   op_a_i <= 8'b00100000;
+   op_b_i <= 8'b00100000;
+#40
    wait(in_rdy_o == 1);
    
-   op_a_i <= 100;
-   op_b_i <= 5;
-    #40
-   wait(in_rdy_o == 1);
-   
-   op_a_i <= 1000;
-   op_b_i <= 20;
-    #40
-   wait(in_rdy_o == 1);
-    
    // for (int i = 0; i < N; i++) begin
     //    std::randomize(opcode_i);
         //std::randomize(op_a_i);

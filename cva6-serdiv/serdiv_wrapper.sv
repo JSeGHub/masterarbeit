@@ -75,6 +75,7 @@ module serdiv_wrapper import ariane_pkg::*; #(
 
     // Timing decision based on MSB
 
+      if (op_a_i_label == 0) begin
         case (op_a_i[WIDTH-1:WIDTH-3])
           3'b000: t_array[0] = 6;
           3'b001: t_array[0] = 7;
@@ -86,7 +87,9 @@ module serdiv_wrapper import ariane_pkg::*; #(
           3'b111: t_array[0] = 9;
           default: t_array[0] = 9;
         endcase
+      end else t_array[0] = 0;
 
+      if (op_b_i_label == 0) begin
         case (op_b_i[WIDTH-1:WIDTH-3])
           3'b000: t_array[1] = 9;
           3'b001: t_array[1] = 4;
@@ -98,11 +101,9 @@ module serdiv_wrapper import ariane_pkg::*; #(
           3'b111: t_array[1] = 9;
           default: t_array[1] = 9;
         endcase
+      end else t_array[1] = 0;
 
-    if (op_a_i_label == 0) t_array[0] = 0;
-    if (op_b_i_label == 0) t_array[1] = 0;
-
- end
+end
 
 
   // FSM combinatorial logic
@@ -116,12 +117,18 @@ module serdiv_wrapper import ariane_pkg::*; #(
         if (in_vld_i_q) begin
           state_d = RUN;
           timer_d = 0;
-          for (int i = 0; i < 2; i++) begin
-            if (t_array[i] > timer_d) timer_d = t_array[i];
-          end
+          if ((op_a_i_label == 1) && (op_b_i_label == 1)) begin
+            timer_d = 9;
+          end else if ((op_a_i_label == 0) && (op_b_i_label == 0)) begin
+            timer_d = 0;
+          end else begin
+            for (int i = 0; i < 2; i++) begin
+              if (t_array[i] > timer_d) timer_d = t_array[i];
+            end
+        end
           out_vld_o_d = 1'b0;
           in_rdy_o_d = 1'b0;
-          res_o_label_d =  op_a_i_label | op_b_i_label;
+          res_o_label_d = op_a_i_label | op_b_i_label;
         end
       end
       RUN: begin

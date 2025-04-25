@@ -1,80 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenRun Id="impl_1" LaunchPart="xc7vx485tffg1157-1" LaunchTime="1745413864">
-  <File Type="WBT-USG" Name="usage_statistics_webtalk.html"/>
-  <File Type="BITSTR-SYSDEF" Name="serdiv_wrapper.sysdef"/>
   <File Type="BITSTR-LTX" Name="debug_nets.ltx"/>
   <File Type="BITSTR-LTX" Name="serdiv_wrapper.ltx"/>
-  <File Type="BG-BGN" Name="serdiv_wrapper.bgn"/>
-  <File Type="NPI_FILE" Name="serdiv_wrapper.npi"/>
-  <File Type="BG-DRC" Name="serdiv_wrapper.drc"/>
-  <File Type="RNPI_FILE" Name="serdiv_wrapper.rnpi"/>
-  <File Type="CFI_FILE" Name="serdiv_wrapper.cfi"/>
-  <File Type="RCFI_FILE" Name="serdiv_wrapper.rcfi"/>
-  <File Type="PDI-FILE" Name="serdiv_wrapper.pdi"/>
+  <File Type="BITSTR-SYSDEF" Name="serdiv_wrapper.sysdef"/>
   <File Type="BITSTR-MMI" Name="serdiv_wrapper.mmi"/>
   <File Type="BITSTR-BMM" Name="serdiv_wrapper_bd.bmm"/>
   <File Type="BITSTR-NKY" Name="serdiv_wrapper.nky"/>
   <File Type="BITSTR-RBT" Name="serdiv_wrapper.rbt"/>
+  <File Type="REPORTS-TCL" Name="serdiv_wrapper_reports.tcl"/>
+  <File Type="CFI_FILE" Name="serdiv_wrapper.cfi"/>
+  <File Type="OPT-HWDEF" Name="serdiv_wrapper.hwdef"/>
   <File Type="BITSTR-MSK" Name="serdiv_wrapper.msk"/>
+  <File Type="PA-TCL" Name="serdiv_wrapper.tcl"/>
+  <File Type="ROUTE-TIMING-PB" Name="serdiv_wrapper_timing_summary_routed.pb"/>
+  <File Type="RCFI_FILE" Name="serdiv_wrapper.rcfi"/>
   <File Type="RBD_FILE" Name="serdiv_wrapper.rbd"/>
   <File Type="BG-BIN" Name="serdiv_wrapper.bin"/>
-  <File Type="BG-BIT" Name="serdiv_wrapper.bit"/>
-  <File Type="POSTROUTE-PHYSOPT-BUS-SKEW-RPX" Name="serdiv_wrapper_bus_skew_postroute_physopted.rpx"/>
-  <File Type="POSTROUTE-PHYSOPT-BUS-SKEW-PB" Name="serdiv_wrapper_bus_skew_postroute_physopted.pb"/>
-  <File Type="POSTROUTE-PHYSOPT-BUS-SKEW" Name="serdiv_wrapper_bus_skew_postroute_physopted.rpt"/>
-  <File Type="RDI-RDI" Name="serdiv_wrapper.vdi"/>
-  <File Type="POSTROUTE-PHYSOPT-TIMING-RPX" Name="serdiv_wrapper_timing_summary_postroute_physopted.rpx"/>
-  <File Type="POSTROUTE-PHYSOPT-TIMING-PB" Name="serdiv_wrapper_timing_summary_postroute_physopted.pb"/>
-  <File Type="POSTROUTE-PHYSOPT-TIMING" Name="serdiv_wrapper_timing_summary_postroute_physopted.rpt"/>
-  <File Type="POSTROUTE-PHYSOPT-BLACKBOX-DCP" Name="serdiv_wrapper_postroute_physopt_bb.dcp"/>
-  <File Type="POSTROUTE-PHYSOPT-DCP" Name="serdiv_wrapper_postroute_physopt.dcp"/>
-  <File Type="ROUTE-BUS-SKEW" Name="serdiv_wrapper_bus_skew_routed.rpt"/>
-  <File Type="ROUTE-CLK" Name="serdiv_wrapper_clock_utilization_routed.rpt"/>
-  <File Type="ROUTE-SIMILARITY" Name="serdiv_wrapper_incremental_reuse_routed.rpt"/>
-  <File Type="ROUTE-TIMING-RPX" Name="serdiv_wrapper_timing_summary_routed.rpx"/>
-  <File Type="ROUTE-TIMING-PB" Name="serdiv_wrapper_timing_summary_routed.pb"/>
-  <File Type="ROUTE-TIMINGSUMMARY" Name="serdiv_wrapper_timing_summary_routed.rpt"/>
-  <File Type="ROUTE-STATUS-PB" Name="serdiv_wrapper_route_status.pb"/>
-  <File Type="ROUTE-STATUS" Name="serdiv_wrapper_route_status.rpt"/>
-  <File Type="ROUTE-PWR-RPX" Name="serdiv_wrapper_power_routed.rpx"/>
-  <File Type="ROUTE-PWR-SUM" Name="serdiv_wrapper_power_summary_routed.pb"/>
-  <File Type="ROUTE-PWR" Name="serdiv_wrapper_power_routed.rpt"/>
-  <File Type="ROUTE-METHODOLOGY-DRC-PB" Name="serdiv_wrapper_methodology_drc_routed.pb"/>
-  <File Type="ROUTE-METHODOLOGY-DRC-RPX" Name="serdiv_wrapper_methodology_drc_routed.rpx"/>
-  <File Type="ROUTE-METHODOLOGY-DRC" Name="serdiv_wrapper_methodology_drc_routed.rpt"/>
-  <File Type="ROUTE-DRC-RPX" Name="serdiv_wrapper_drc_routed.rpx"/>
-  <File Type="ROUTE-DRC-PB" Name="serdiv_wrapper_drc_routed.pb"/>
-  <File Type="ROUTE-DRC" Name="serdiv_wrapper_drc_routed.rpt"/>
+  <File Type="NPI_FILE" Name="serdiv_wrapper.npi"/>
+  <File Type="BG-BGN" Name="serdiv_wrapper.bgn"/>
   <File Type="ROUTE-BLACKBOX-DCP" Name="serdiv_wrapper_routed_bb.dcp"/>
-  <File Type="ROUTE-DCP" Name="serdiv_wrapper_routed.dcp"/>
-  <File Type="ROUTE-ERROR-DCP" Name="serdiv_wrapper_routed_error.dcp"/>
-  <File Type="PHYSOPT-TIMING" Name="serdiv_wrapper_timing_summary_physopted.rpt"/>
-  <File Type="PHYSOPT-DRC" Name="serdiv_wrapper_drc_physopted.rpt"/>
-  <File Type="PHYSOPT-DCP" Name="serdiv_wrapper_physopt.dcp"/>
-  <File Type="POSTPLACE-PWROPT-TIMING" Name="serdiv_wrapper_timing_summary_postplace_pwropted.rpt"/>
+  <File Type="PDI-FILE" Name="serdiv_wrapper.pdi"/>
+  <File Type="WBT-USG" Name="usage_statistics_webtalk.html"/>
   <File Type="POSTPLACE-PWROPT-DCP" Name="serdiv_wrapper_postplace_pwropt.dcp"/>
-  <File Type="PLACE-TIMING" Name="serdiv_wrapper_timing_summary_placed.rpt"/>
+  <File Type="RDI-RDI" Name="serdiv_wrapper.vdi"/>
+  <File Type="RNPI_FILE" Name="serdiv_wrapper.rnpi"/>
+  <File Type="BG-DRC" Name="serdiv_wrapper.drc"/>
+  <File Type="ROUTE-ERROR-DCP" Name="serdiv_wrapper_routed_error.dcp"/>
+  <File Type="BG-BIT" Name="serdiv_wrapper.bit"/>
   <File Type="PLACE-PRE-SIMILARITY" Name="serdiv_wrapper_incremental_reuse_pre_placed.rpt"/>
-  <File Type="PLACE-SIMILARITY" Name="serdiv_wrapper_incremental_reuse_placed.rpt"/>
-  <File Type="PLACE-CTRL" Name="serdiv_wrapper_control_sets_placed.rpt"/>
-  <File Type="PLACE-UTIL-PB" Name="serdiv_wrapper_utilization_placed.pb"/>
-  <File Type="PLACE-UTIL" Name="serdiv_wrapper_utilization_placed.rpt"/>
-  <File Type="PLACE-CLK" Name="serdiv_wrapper_clock_utilization_placed.rpt"/>
-  <File Type="PLACE-IO" Name="serdiv_wrapper_io_placed.rpt"/>
-  <File Type="PLACE-DCP" Name="serdiv_wrapper_placed.dcp"/>
-  <File Type="PWROPT-TIMING" Name="serdiv_wrapper_timing_summary_pwropted.rpt"/>
-  <File Type="PWROPT-DRC" Name="serdiv_wrapper_drc_pwropted.rpt"/>
-  <File Type="PWROPT-DCP" Name="serdiv_wrapper_pwropt.dcp"/>
-  <File Type="OPT-TIMING" Name="serdiv_wrapper_timing_summary_opted.rpt"/>
-  <File Type="OPT-HWDEF" Name="serdiv_wrapper.hwdef"/>
-  <File Type="OPT-METHODOLOGY-DRC" Name="serdiv_wrapper_methodology_drc_opted.rpt"/>
-  <File Type="OPT-DRC" Name="serdiv_wrapper_drc_opted.rpt"/>
+  <File Type="ROUTE-DCP" Name="serdiv_wrapper_routed.dcp"/>
   <File Type="OPT-DCP" Name="serdiv_wrapper_opt.dcp"/>
-  <File Type="INIT-TIMING" Name="serdiv_wrapper_timing_summary_init.rpt"/>
-  <File Type="ROUTE-BUS-SKEW-RPX" Name="serdiv_wrapper_bus_skew_routed.rpx"/>
-  <File Type="REPORTS-TCL" Name="serdiv_wrapper_reports.tcl"/>
-  <File Type="ROUTE-BUS-SKEW-PB" Name="serdiv_wrapper_bus_skew_routed.pb"/>
-  <File Type="PA-TCL" Name="serdiv_wrapper.tcl"/>
+  <File Type="PLACE-DCP" Name="serdiv_wrapper_placed.dcp"/>
+  <File Type="PWROPT-DCP" Name="serdiv_wrapper_pwropt.dcp"/>
+  <File Type="PHYSOPT-DCP" Name="serdiv_wrapper_physopt.dcp"/>
+  <File Type="POSTROUTE-PHYSOPT-DCP" Name="serdiv_wrapper_postroute_physopt.dcp"/>
+  <File Type="POSTROUTE-PHYSOPT-BLACKBOX-DCP" Name="serdiv_wrapper_postroute_physopt_bb.dcp"/>
   <FileSet Name="sources" Type="DesignSrcs" RelSrcDir="$PSRCDIR/sources_1">
     <Filter Type="Srcs"/>
     <File Path="$PPRDIR/../../cva6-serdiv/common/ariane_dm_pkg.sv">
@@ -159,9 +119,7 @@
     </Config>
   </FileSet>
   <Strategy Version="1" Minor="2">
-    <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2020">
-      <Desc>Default settings for Implementation.</Desc>
-    </StratHandle>
+    <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2020"/>
     <Step Id="init_design"/>
     <Step Id="opt_design"/>
     <Step Id="power_opt_design"/>
@@ -171,5 +129,6 @@
     <Step Id="route_design"/>
     <Step Id="post_route_phys_opt_design"/>
     <Step Id="write_bitstream"/>
+    <Step Id="write_device_image"/>
   </Strategy>
 </GenRun>
