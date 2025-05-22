@@ -2,8 +2,8 @@
 # Vivado v2020.1 (64-bit)
 # SW Build 2902540 on Wed May 27 19:54:35 MDT 2020
 # IP Build 2902112 on Wed May 27 22:43:36 MDT 2020
-# Start of session at: Wed Apr 23 15:11:05 2025
-# Process ID: 3673344
+# Start of session at: Tue Apr 29 17:14:54 2025
+# Process ID: 346707
 # Current directory: /import/lab/users/seckinger/Master-Thesis/masterarbeit/Vivado/Wrapper_MA_single/Wrapper_MA_single.runs/synth_1
 # Command line: vivado -log serdiv_wrapper.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source serdiv_wrapper.tcl
 # Log file: /import/lab/users/seckinger/Master-Thesis/masterarbeit/Vivado/Wrapper_MA_single/Wrapper_MA_single.runs/synth_1/serdiv_wrapper.vds

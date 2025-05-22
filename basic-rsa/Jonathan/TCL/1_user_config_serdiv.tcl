@@ -4,6 +4,9 @@ set start_time [clock milliseconds]
 # Manual Input / Output Declarations #
 ######################################
 
+#Optimization Type
+    set opt_type "es" ; # es=equal-size partitioning, lz=leading-zero partitioning, all = both and get best
+
 #Set script path without subfiles
     #set script_path [file dirname [file normalize [info script]]]
     set script_path "/import/lab/users/seckinger/Master-Thesis/masterarbeit/cva6-serdiv"
@@ -12,7 +15,8 @@ set start_time [clock milliseconds]
     set file_type "sv" ; #".sv" ".v" ".vlog" ".svlog" ".inc" ".vo" ".vm" ".vlib" ".vhd" ".vhdl"
     set file_name "serdiv" ; #Inserts here the real name of the file like in your code
     set file_folder "optimized/" ; #Inserts here the real name of the folder
-    set sva_file "property_checker_generated.sva"
+    #set sva_file "property_checker_generated.sva"; #Insert name of generated SVA file
+    set sva_file "property_checker_generated"; #Insert name of generated SVA file
 
 #Set needed Subfiles:
     set subfile_names [list "ariane_dm_pkg.sv" "cf_math_pkg.sv" "rvfi_pkg.sv" "riscv_pkg.sv" "ariane_pkg.sv" "cv64a6_imafdc_sv39_config_pkg.sv" "lzc.sv"]
@@ -42,7 +46,7 @@ set start_time [clock milliseconds]
 #Data Input - Inserts here the real names of Data-Inputs like in your code
     set input_operation_names [list "opcode_i"]
     set input_operation_length [list "1:0"]
-    set operation_flag 0; # 0 = global check, 1 = each operation seperate
+    set operation_flag 0; # 0 = global check, 1 = each operation seperate, 2 = overall dependency
 
     set input_data_id_names [list "id_i"]
     set input_data_id_length [list "TRANS_ID_BITS-1:0"]

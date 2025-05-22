@@ -1,5 +1,5 @@
 puts "\n===== Configuration Summary =====\n"
-puts "SVA file: $sva_file"
+puts "SVA file: $sva_file\_short.sva"
 puts "Granularity: $granularity"
 puts "Module name: $module_name"
 puts "WIDTH: $width"

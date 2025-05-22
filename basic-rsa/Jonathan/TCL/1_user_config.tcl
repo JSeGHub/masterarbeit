@@ -4,6 +4,9 @@ set start_time [clock milliseconds]
 # Manual Input / Output Declarations #
 ######################################
 
+#Optimization Type
+    set opt_type "es" ; # es=equal-size partitioning, lz=leading-zero partitioning, all = both and get best
+
 #Set script path without subfiles
     set script_path [file dirname [file normalize [info script]]]
     set script_path "/import/lab/users/seckinger/Master-Thesis/masterarbeit/basic-rsa/Jonathan/"
@@ -25,6 +28,12 @@ set start_time [clock milliseconds]
     set width_name "MPWID"
     set width 8
 
+#Set parameter
+    set param_names [list ]
+    set param_values [list]
+#Set imports
+    set import_name "ariane_pkg::*;"
+
 #Clock and Reset - Inserts here the real names of Clock and Reset like in your code
     set clock_name "clk"
     set reset_name "reset"
@@ -36,7 +45,7 @@ set start_time [clock milliseconds]
 #Data Input - Inserts here the real names of Data-Inputs like in your code
     set input_operation_names "" ; # [list]
     set input_operation_length "" ; # [list]
-    set operation_flag 0; # 0 = global check, 1 = each operation seperate
+    set operation_flag 0; # 0 = global check, 1 = each operation seperate, 2 = overall dependency
 
     set input_data_id_names "" ; # [list]
     set input_data_id_length "" ; # [list]

@@ -108,32 +108,38 @@ module serdiv_wrapper_tb import ariane_pkg::*; #(
     
     op_a_i_label <=  1'b0;
     op_b_i_label <=  1'b0;
-    op_a_i <= 8'b00100000;
-    op_b_i <= 8'b00100000;
+    op_a_i <= 8'b00110111;
+    op_b_i <= 8'b00000001;
 #40
    wait(in_rdy_o == 1);
    
    op_a_i_label <=  1'b1;
    op_b_i_label <=  1'b0;
-   op_a_i <= 8'b00100000;
-   op_b_i <= 8'b00100000;
+    op_a_i <= 8'b00111011;
+    op_b_i <= 8'b00000001;
 #40
    wait(in_rdy_o == 1);
    
    op_a_i_label <=  1'b0;
    op_b_i_label <=  1'b1;
-   op_a_i <= 8'b00100000;
-   op_b_i <= 8'b00100000;
+    op_a_i <= 8'b00111101;
+    op_b_i <= 8'b00000001;
 #40
    wait(in_rdy_o == 1);
    
    op_a_i_label <=  1'b1;
    op_b_i_label <=  1'b1;
-   op_a_i <= 8'b00100000;
-   op_b_i <= 8'b00100000;
+    op_a_i <= 8'b00101111;
+    op_b_i <= 8'b00000001;
 #40
    wait(in_rdy_o == 1);
-   
+
+    op_a_i_label <=  1'b0;
+    op_b_i_label <=  1'b0;
+    op_a_i <= 8'b00111111;
+    op_b_i <= 8'b00000001;
+#40
+   wait(in_rdy_o == 1);   
    // for (int i = 0; i < N; i++) begin
     //    std::randomize(opcode_i);
         //std::randomize(op_a_i);

@@ -1,0 +1,13 @@
+#-----------------------------------------------------------
+# Vivado v2020.1 (64-bit)
+# SW Build 2902540 on Wed May 27 19:54:35 MDT 2020
+# IP Build 2902112 on Wed May 27 22:43:36 MDT 2020
+# Start of session at: Tue Apr 29 12:19:56 2025
+# Process ID: 2238295
+# Current directory: /import/lab/users/seckinger/Master-Thesis/masterarbeit
+# Command line: vivado
+# Log file: /import/lab/users/seckinger/Master-Thesis/masterarbeit/vivado.log
+# Journal file: /import/lab/users/seckinger/Master-Thesis/masterarbeit/vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project /import/lab/users/seckinger/booth-2bit/booth-2bit.xpr

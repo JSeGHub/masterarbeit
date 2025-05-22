@@ -1,7 +1,7 @@
 // Auto-generated SystemVerilog Wrapper for modmult
 `timescale 1ns/1ps
 
-module modmult_wrapper #(
+module modmult_wrapper import ariane_pkg::*; #(
     parameter int MPWID = 8
 ) (
     input  logic clk,
@@ -31,19 +31,20 @@ module modmult_wrapper #(
   logic [MPWID-1:0] product_q, product_d;
   logic product_label_q, product_label_d;
 
-  logic ds_q, ds_d;
+  logic ds_q;
   logic ready_q, ready_d;
 
   logic [MPWID-1:0] timer_q, timer_d;
 
  
   // Timing array
-  logic [MPWID-1:0] t_array [3][0];
+  logic [MPWID-1:0] t_array [3];
  
 
   // Instantiate the DUT
   modmult #(
     .MPWID(MPWID)
+
   ) dut (
     .clk(clk),
     .reset(reset),
@@ -52,11 +53,7 @@ module modmult_wrapper #(
     .mpand(mpand),
     .mplier(mplier),
     .modulus(modulus),
-    .mpand_label(mpand_label),
-    .mplier_label(mplier_label),
-    .modulus_label(modulus_label),
-    .product(product_q),
-    .product_label(product_label_q) 
+    .product(product_q) 
   );
 
   
@@ -64,58 +61,59 @@ module modmult_wrapper #(
   // Combinatorial logic - Timing behavior
  
   always_comb begin
-    // Default values
-    t_array[0] = 0;
-    t_array[1] = 9;
-    t_array[2] = 0;
 
     // Timing decision based on MSB
 
-        case (mplier[MPWID-1:MPWID-3])
-          3'b000: t_array[1] = 6;
-          3'b001: t_array[1] = 7;
-          3'b010: t_array[1] = 8;
-          3'b011: t_array[1] = 8;
-          3'b100: t_array[1] = 9;
-          3'b101: t_array[1] = 9;
-          3'b110: t_array[1] = 9;
-          3'b111: t_array[1] = 9;
+      if (mplier_label == 0) begin
+        case (mplier[MPWID-1:MPWID-9])
+          8'b1xxxxxxx: t_array[1] = 9;
+          8'b01xxxxxx: t_array[1] = 8;
+          8'b001xxxxx: t_array[1] = 7;
+          8'b0001xxxx: t_array[1] = 6;
+          8'b00001xxx: t_array[1] = 5;
+          8'b000001xx: t_array[1] = 4;
+          8'b0000001x: t_array[1] = 3;
+          8'b00000001: t_array[1] = 2;
           default: t_array[1] = 9;
         endcase
+      end else t_array[1] = 0;
 
-  end
+end
 
 
   // FSM combinatorial logic
   always_comb begin
     state_d = state_q;
     timer_d = timer_q;
-    product_label_d = product_label_q;
     ready_d = ready_q;
-    product_d = product_q;
 
     case (state_q)
       IDLE: begin
         if (ds_q) begin
           state_d = RUN;
           timer_d = 0;
-          for (int i = 0; i < 3; i++) begin
-            if (t_array[i] > timer_d) timer_d = t_array[i];
+          if ((mpand_label == 1) && (mplier_label == 1) && (modulus_label == 1)) begin
+            timer_d = 9;
+          end else if ((mpand_label == 0) && (mplier_label == 0) && (modulus_label == 0)) begin
+            timer_d = 0;
+          end else begin
+            for (int i = 0; i < 3; i++) begin
+              if (t_array[i] > timer_d) timer_d = t_array[i];
+            end
           end
-          ready_d = 0;
-          product_label_d =  mplier_label;
+          ready_d = 1'b0;
         end
       end
       RUN: begin
         if (timer_q > 0)
           timer_d = timer_q - 1;
-        else
+        else if (ready_q) begin
           state_d = DONE;
+        end
       end
       DONE: begin
         product_d = product_q;
-        product_label_d = product_label_q;
-        ready_d = 1;
+        ready_d = 1'b1;
         state_d = IDLE;
       end
     endcase
@@ -126,26 +124,29 @@ module modmult_wrapper #(
 
   // FSM sequential logic
   always_ff @(posedge clk or posedge reset) begin
-    if (!reset) begin
+    if (reset) begin
       state_q <= IDLE;
       timer_q <= 9;
-      ready_q <= 0;
-      product_q <= 0;
-      product_label_q <= 1;
     end else begin
       state_q <= state_d;
       timer_q <= timer_d;
       ready_q <= ready_d;
-      product_q <= product_d;
-      product_label_q <= product_label_d;
+    end
+  end
+
+  // Secure handling of output label - always prioritize labels
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      product_label_q <= 1'b0;
+    end else if (state_q == IDLE && ds) begin
+      product_label_q <= mpand_label | mplier_label | modulus_label;
     end
   end
 
   // Assignments
-  assign ds_q = (state_q == IDLE) ? ds : 0;
-  assign ready_q = ready_d;
-  assign product = product_q;
+  assign ds_q = ((state_q == IDLE) ? ds : 1'b0);
+  assign ready = ready_d;
+  assign product = product_d;
   assign product_label = product_label_q;
-
 
 endmodule

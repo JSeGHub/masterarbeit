@@ -155,11 +155,11 @@ puts $fp ""
 
 # Handshake
 if {$valid_in != ""} {
-    puts $fp "  logic ${valid_in}_q, ${valid_in}_d;"
+    puts $fp "  logic ${valid_in}_q;"
 
 }
 if {$ready_in != ""} {
-    puts $fp "  logic ${ready_in}_q, ${ready_in}_d;"
+    puts $fp "  logic ${ready_in}_q;"
 }
 if {$valid_out != ""} {
     puts $fp "  logic ${valid_out}_q, ${valid_out}_d;"
@@ -408,20 +408,12 @@ puts $fp "  // FSM combinatorial logic"
 puts $fp "  always_comb begin"
 puts $fp "    state_d = state_q;"
 puts $fp "    timer_d = timer_q;"
-foreach out $output_data_names {
-    puts $fp "    ${out}\_label_d = ${out}\_label_q;"
+if {$valid_out != ""} {
+    puts $fp "    ${valid_out}\_d = ${valid_out}\_q;"
 }
-#if {$valid_out != ""} {
-#    puts $fp "    ${valid_out}_d = ${valid_out}_q;"
-#}
-#if {$ready_out != ""} {
-#    puts $fp "    ${ready_out}_d = ${ready_out}_q;"
-#}
-#foreach out $output_data_names {
-#    puts $fp "    ${out}_d = ${out}_q;"
-#}
-
-
+if {$ready_out != ""} {
+    puts $fp "    ${ready_out}\_d = ${ready_out}\_q;"
+}
 puts $fp ""
 puts $fp "    case (state_q)"
 puts $fp "      IDLE: begin"
@@ -449,7 +441,7 @@ puts  $fp "          end else begin"
 puts $fp "            for (int i = 0; i < [llength $input_data_names]; i++) begin"
 puts $fp "              if (t_array\[i\] > timer_d) timer_d = t_array\[i\];"
 puts $fp "            end"
-puts $fp "        end"
+puts $fp "          end"
 
 
 
@@ -461,38 +453,18 @@ if {$ready_out != ""} {
     puts $fp "          ${ready_out}_d = 1'b0;"
 }
 
-set label_marker 0
-set label_counter 0
-
-
-foreach out_data $output_data_names {
-    puts -nonewline $fp "          ${out_data}\_label\_d ="
-
-    for {set i 0} {$i < [llength $input_data_names]} {incr i} {
-        if {$label_marker == 0} {
-            puts -nonewline $fp " [lindex $input_data_names $i]\_label"
-            set label_marker 1
-        } else {
-            puts -nonewline $fp " | [lindex $input_data_names $i]\_label"
-        }
-        set label_counter 1
-    }
-}
-puts $fp ";"
 puts $fp "        end"
 puts $fp "      end"
 puts $fp "      RUN: begin"
 puts $fp "        if (timer_q > 0)"
 puts $fp "          timer_d = timer_q - 1;"
-puts $fp "        else"
+puts $fp "        else if ($valid_out\_q) begin"
 puts $fp "          state_d = DONE;"
+puts $fp "        end"
 puts $fp "      end"
 puts $fp "      DONE: begin"
 foreach out $output_data_names {
     puts $fp "        ${out}_d = ${out}_q;"
-}
-foreach out $output_data_names {
-    puts $fp "        ${out}\_label_d = ${out}\_label_q;"
 }
 if {$valid_out != ""} {
     puts $fp "        ${valid_out}_d = 1'b1;"
@@ -521,18 +493,6 @@ if {$reset_type == 0} {
 puts $fp "    if ($rst_cond) begin"
 puts $fp "      state_q <= IDLE;"
 puts $fp "      timer_q <= $T_WCET_EXE;"
-#if {$valid_out != ""} {
-#    puts $fp "      ${valid_out}_q <= 1'b0;"
-#}
-#if {$ready_out != ""} {
-#    puts $fp "      ${ready_out}_q <= 1'b0;"
-#}
-#foreach out $output_data_names {
-#    puts $fp "      $out\_q <= '0;"
-#}
-foreach out $output_data_names {
-    puts $fp "      $out\_label\_q <= 1'b1;"
-}
 puts $fp "    end else begin"
 puts $fp "      state_q <= state_d;"
 puts $fp "      timer_q <= timer_d;"
@@ -542,15 +502,46 @@ if {$ready_out != ""} {
 if {$valid_out != ""} {
     puts $fp "      ${valid_out}_q <= ${valid_out}_d;"
 }
-#foreach out $output_data_names {
-#    puts $fp "      ${out}_q <= ${out}_d;"
-#}
-foreach out $output_data_names {
-    puts $fp "      ${out}\_label_q <= ${out}\_label_d;"
-}
+
 
 puts $fp "    end"
 puts $fp "  end\n"
+
+puts $fp "  // Secure handling of output label - always prioritize labels"
+if {$reset_type == 0} {
+    puts $fp "  always_ff @(posedge $clock_name or negedge $reset_name) begin"
+} else {
+    puts $fp "  always_ff @(posedge $clock_name or posedge $reset_name) begin"
+}
+puts $fp "    if ($rst_cond) begin"
+foreach out $output_data_names {
+    puts $fp "      ${out}\_label\_q <= 1'b0;"
+}
+puts $fp "    end else if (state_q == IDLE && $valid_in) begin"
+set label_marker 0
+set label_counter 0
+foreach out_data $output_data_names {
+    puts -nonewline $fp "      ${out_data}\_label\_q <="
+
+    for {set i 0} {$i < [llength $input_data_names]} {incr i} {
+        if {$label_marker == 0} {
+            puts -nonewline $fp " [lindex $input_data_names $i]\_label"
+            set label_marker 1
+        } else {
+            puts -nonewline $fp " | [lindex $input_data_names $i]\_label"
+        }
+        set label_counter 1
+    }
+}
+puts $fp ";"
+puts $fp "    end"
+puts $fp "  end"
+puts $fp ""
+
+
+
+
+
 
 
 ##############
@@ -560,10 +551,10 @@ puts $fp "  end\n"
 puts $fp "  // Assignments"
 
 if {$valid_in != ""} {
-    puts $fp "  assign $valid_in\_q = (state_q == IDLE) ? $valid_in : 1'b0;"
+    puts $fp "  assign $valid_in\_q = ((state_q == IDLE) ? $valid_in : 1'b0);"
 }
 if {$ready_in != ""} {
-    puts $fp "  assign $ready_in\_q = (state_q == IDLE) ? $ready_in : 1'b0;"
+    puts $fp "  assign $ready_in\_q = ((state_q == IDLE) ? $ready_in : 1'b0);"
 }
 if {$valid_out != ""} {
     puts $fp "  assign ${valid_out} = ${valid_out}_d;"
@@ -575,10 +566,9 @@ if {$ready_out != ""} {
 
 foreach out $output_data_names {
     puts $fp "  assign $out = ${out}_d;"
+    puts $fp "  assign ${out}_label = ${out}\_label\_q;"
 }
-foreach out $output_data_names {
-    puts $fp "  assign $out\_label = ${out}\_label_q;"
-}
+
 
 puts $fp ""
 puts $fp "endmodule"

@@ -1,4 +1,2 @@
 Vivado Simulator 2020.1
 Time resolution is 1 ps
-Final simulation time (clock cycles): -19960
-$finish called at time : 830 ns : File "/import/lab/users/seckinger/Master-Thesis/masterarbeit/cva6-serdiv/wrapper_serdiv_tb.sv" Line 153

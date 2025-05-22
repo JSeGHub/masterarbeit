@@ -4,16 +4,20 @@ set start_time [clock milliseconds]
 # Manual Input / Output Declarations #
 ######################################
 
+#Optimization Type
+    set opti_type "lzp" ; # esp=equal-size partitioning, lzp=leading-zero partitioning, all = both and get best
+    set operation_flag 1; # 0 = global check, 1 = each operation seperate, 2 = overall dependency
+
 #Set script path without subfiles
     set script_path [file dirname [file normalize [info script]]]
     set script_path "/import/lab/users/seckinger/Master-Thesis/masterarbeit/basic-rsa/Jonathan/"
     
-
 #Set file options
     set file_type "vhd" ; #".sv" ".v" ".vlog" ".svlog" ".inc" ".vo" ".vm" ".vlib" ".vhd" ".vhdl"
     set file_name "modmult" ; #Inserts here the real name of the file like in your code
     set file_folder "" ; #Inserts here the real name of the folder
-    set sva_file "property_checker_generated.sva"
+    set sva_file "property_checker_generated"
+    #set sva_file "property_checker_generated.sva"
 
 #Set needed Subfiles:
     set subfile_names [list]
@@ -26,6 +30,12 @@ set start_time [clock milliseconds]
     set width_name "MPWID"
     set width 8
 
+#Set parameter
+    set param_names [list ]
+    set param_values [list]
+#Set imports
+    set import_name "ariane_pkg::*;"
+
 #Clock and Reset - Inserts here the real names of Clock and Reset like in your code
     set clock_name "clk"
     set reset_name "reset"
@@ -37,7 +47,7 @@ set start_time [clock milliseconds]
 #Data Input - Inserts here the real names of Data-Inputs like in your code
     set input_operation_names [list]
     set input_operation_length [list]
-    set operation_flag 0; # 0 = global check, 1 = each operation seperate
+
 
     set input_data_id_names [list]
     set input_data_id_length [list]

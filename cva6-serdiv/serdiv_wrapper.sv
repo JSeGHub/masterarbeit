@@ -35,8 +35,8 @@ module serdiv_wrapper import ariane_pkg::*; #(
   logic [WIDTH-1:0] res_o_q, res_o_d;
   logic res_o_label_q, res_o_label_d;
 
-  logic in_vld_i_q, in_vld_i_d;
-  logic out_rdy_i_q, out_rdy_i_d;
+  logic in_vld_i_q;
+  logic out_rdy_i_q;
   logic out_vld_o_q, out_vld_o_d;
   logic in_rdy_o_q, in_rdy_o_d;
 
@@ -110,7 +110,8 @@ end
   always_comb begin
     state_d = state_q;
     timer_d = timer_q;
-    res_o_label_d = res_o_label_q;
+    out_vld_o_d = out_vld_o_q;
+    in_rdy_o_d = in_rdy_o_q;
 
     case (state_q)
       IDLE: begin
@@ -125,21 +126,20 @@ end
             for (int i = 0; i < 2; i++) begin
               if (t_array[i] > timer_d) timer_d = t_array[i];
             end
-        end
+          end
           out_vld_o_d = 1'b0;
           in_rdy_o_d = 1'b0;
-          res_o_label_d = op_a_i_label | op_b_i_label;
         end
       end
       RUN: begin
         if (timer_q > 0)
           timer_d = timer_q - 1;
-        else
+        else if (out_vld_o_q) begin
           state_d = DONE;
+        end
       end
       DONE: begin
         res_o_d = res_o_q;
-        res_o_label_d = res_o_label_q;
         out_vld_o_d = 1'b1;
         in_rdy_o_d = 1'b1;
         state_d = IDLE;
@@ -155,19 +155,26 @@ end
     if (!rst_ni) begin
       state_q <= IDLE;
       timer_q <= 9;
-      res_o_label_q <= 1'b1;
     end else begin
       state_q <= state_d;
       timer_q <= timer_d;
       in_rdy_o_q <= in_rdy_o_d;
       out_vld_o_q <= out_vld_o_d;
-      res_o_label_q <= res_o_label_d;
+    end
+  end
+
+  // Secure handling of output label - always prioritize labels
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      res_o_label_q <= 1'b0;
+    end else if (state_q == IDLE && in_vld_i) begin
+      res_o_label_q <= op_a_i_label | op_b_i_label;
     end
   end
 
   // Assignments
-  assign in_vld_i_q = (state_q == IDLE) ? in_vld_i : 1'b0;
-  assign out_rdy_i_q = (state_q == IDLE) ? out_rdy_i : 1'b0;
+  assign in_vld_i_q = ((state_q == IDLE) ? in_vld_i : 1'b0);
+  assign out_rdy_i_q = ((state_q == IDLE) ? out_rdy_i : 1'b0);
   assign out_vld_o = out_vld_o_d;
   assign in_rdy_o = in_rdy_o_q;
   assign res_o = res_o_d;

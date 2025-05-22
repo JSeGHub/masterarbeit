@@ -1,0 +1,104 @@
+// @lang=sva @ts=8test
+
+module property_checker
+  #(parameter MPWID = 8 )
+  (
+  input clk_i,
+  input rst_i
+  );
+
+  default clocking default_clk @(posedge clk_i); endclocking
+
+  `include "tidal.sv"
+
+`begin_tda(ops)
+
+  localparam T_WCET = 9;
+  localparam T_BCET = 1;
+
+  property bcet_p;
+    t ##0 (modmult.ds == 1'b1) and
+    t ##0 (modmult.ready == 1'b1) and
+    t ##1 (modmult.ds == 1'b0) [*T_BCET+1]
+  implies
+    t ##(T_BCET) (modmult.ready == 1'b0);
+  endproperty
+  bcet_p_a: assert property (disable iff (rst_i) bcet_p );
+
+  property wcet_p;
+    t ##0 (modmult.ds == 1'b1) and
+    t ##0 (modmult.ready == 1'b1) and
+    t ##1 (modmult.ds == 1'b0) [*T_WCET+1] and
+    t ##1 (modmult.ready == 1'b0) [*T_WCET]
+  implies    
+    t ##(T_WCET+1) (modmult.ready == 1'b1);
+  endproperty
+  wcet_p_a: assert property (disable iff (rst_i) wcet_p );
+
+`end_tda
+
+
+  localparam int INPUT_A[8] = '{0, 1, 2, 3, 4, 5, 6, 7};
+  localparam T_WCET_IN = 10;
+  localparam T_BCET_IN = 1;
+
+ genvar a,ts;
+  // Property for modmult.mpand
+  property mpand_p(a, ts);
+    t ##0 (modmult.mpand[MPWID-1:MPWID-3] == INPUT_A[a]) and
+    t ##0 (modmult.ds == 1'b1) and
+    t ##0 (modmult.ready == 1'b1) and
+    t ##1 (modmult.ds == 1'b0) [*ts+1]
+  implies 
+    t ##(ts) (modmult.ready == 1'b0) and
+    t ##(ts+1) (modmult.ready == 1'b1);
+  endproperty
+
+  generate
+      for (a = 0; a < $size(INPUT_A); a++) begin: mpand
+         for (ts = T_BCET_IN; ts < T_WCET_IN; ts++) begin: mpand
+            mpand_p_a: assert property (disable iff (rst_i) mpand_p (a,ts));
+         end
+      end
+  endgenerate
+
+  // Property for modmult.mplier
+  property mplier_p(a, ts);
+    t ##0 (modmult.mplier[MPWID-1:MPWID-3] == INPUT_A[a]) and
+    t ##0 (modmult.ds == 1'b1) and
+    t ##0 (modmult.ready == 1'b1) and
+    t ##1 (modmult.ds == 1'b0) [*ts+1]
+  implies 
+    t ##(ts) (modmult.ready == 1'b0) and
+    t ##(ts+1) (modmult.ready == 1'b1);
+  endproperty
+
+  generate
+      for (a = 0; a < $size(INPUT_A); a++) begin: mplier
+         for (ts = T_BCET_IN; ts < T_WCET_IN; ts++) begin: mplier
+            mplier_p_a: assert property (disable iff (rst_i) mplier_p (a,ts));
+         end
+      end
+  endgenerate
+
+  // Property for modmult.modulus
+  property modulus_p(a, ts);
+    t ##0 (modmult.modulus[MPWID-1:MPWID-3] == INPUT_A[a]) and
+    t ##0 (modmult.ds == 1'b1) and
+    t ##0 (modmult.ready == 1'b1) and
+    t ##1 (modmult.ds == 1'b0) [*ts+1]
+  implies 
+    t ##(ts) (modmult.ready == 1'b0) and
+    t ##(ts+1) (modmult.ready == 1'b1);
+  endproperty
+
+  generate
+      for (a = 0; a < $size(INPUT_A); a++) begin: modulus
+         for (ts = T_BCET_IN; ts < T_WCET_IN; ts++) begin: modulus
+            modulus_p_a: assert property (disable iff (rst_i) modulus_p (a,ts));
+         end
+      end
+  endgenerate
+
+endmodule
+bind modmult property_checker #(.MPWID(MPWID)) checker_bind(.clk_i(clk), .rst_i(reset));
